@@ -1,13 +1,9 @@
 from flask import Flask, render_template, request, jsonify
-import os
-import json
 import webbrowser
 from threading import Timer
+from database import init_db, save_project_to_db, load_project_from_db
 
 app = Flask(__name__)
-
-DB_DIR = os.path.join(os.path.dirname(__file__), 'db')
-os.makedirs(DB_DIR, exist_ok=True)
 
 @app.route('/')
 def home():
@@ -24,10 +20,8 @@ def timeline():
 @app.route('/load_project')
 def load_project():
     project_name = request.args.get("project_name")
-    filepath = os.path.join(DB_DIR, f"{project_name}.json")
-    if os.path.exists(filepath):
-        with open(filepath, 'r') as f:
-            data = json.load(f)
+    data = load_project_from_db(project_name)
+    if data:
         print("Retrieved")
         return jsonify(data)
     return jsonify({
@@ -39,19 +33,26 @@ def load_project():
 
 @app.route('/save_project', methods=['POST'])
 def save_project():
+    print("save_project function called")
     project_name = request.args.get("project_name")
+    print(f"Project name: {project_name}")
+    
     if not project_name:
+        print("Missing project name")
         return jsonify({"status": "error", "message": "Missing project name"}), 400
 
     data = request.get_json()
-    filepath = os.path.join(DB_DIR, f"{project_name}.json")
-    with open(filepath, 'w') as f:
-        json.dump(data, f, indent=2)
+    print(f"Received data: {data}")
+    
+    save_project_to_db(project_name, data)
+    print(f"Project {project_name} saved to database")
+    
     return jsonify({"status": "success"})
 
 def open_browser():
     webbrowser.open_new('http://127.0.0.1:5000/')
 
 if __name__ == '__main__':
+    init_db()
     Timer(1, open_browser).start()
     app.run(debug=True)
