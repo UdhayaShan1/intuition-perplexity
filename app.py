@@ -2,7 +2,12 @@ from flask import Flask, render_template, request, jsonify
 import webbrowser
 from threading import Timer
 from database import init_db, save_project_to_db, load_project_from_db, get_all_projects, save_timeline_to_db
-from employees_database import populate_employees_with_mock_data
+from employees_database import (
+    populate_employees_with_mock_data, 
+    db_get_assigned_employees,
+    assign_employee_to_project,  # Add this import
+    get_all_employees
+)
 import employees_database
 import os
 import json
@@ -16,6 +21,9 @@ openai.api_key = ""
 
 with open("api_key/api.txt", "r") as key_file:
     openai.api_key = key_file.read().strip()
+
+# Remove this redundant import since we already imported get_all_employees above
+# from employees_database import get_all_employees
 
 from employees_database import get_all_employees
 
@@ -153,7 +161,28 @@ def save_project():
         print(traceback.format_exc())
         return jsonify({"status": "error", "message": str(e)}), 500
 
-from employees_database import assign_employee_to_project
+
+# Add this route to your app.py
+
+@app.route('/get_assigned_employees')
+def get_assigned_employees():
+    try:
+        project_id = request.args.get('project_id')
+        
+        if not project_id:
+            return jsonify({"status": "error", "message": "No project ID provided"}), 400
+        
+        # Call the function from employees_database
+        employees = db_get_assigned_employees(project_id)
+        
+        return jsonify({
+            "status": "success",
+            "employees": employees
+        })
+        
+    except Exception as e:
+        print(f"Error in get_assigned_employees: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/submit_plan', methods=['POST'])
 def submit_plan():

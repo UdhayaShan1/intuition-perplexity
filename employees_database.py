@@ -94,6 +94,36 @@ def assign_employee_to_project(employee_name, project_id):
     conn.commit()
     conn.close()
 
+# Add this new function to your employees_database.py file
+
+def db_get_assigned_employees(project_id):
+    """
+    Get all employees assigned to a specific project
+    """
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''
+        SELECT id, name, department, years_with_company, employee_data, project_assigned 
+        FROM employees
+        WHERE project_assigned = ?
+    ''', (project_id,))
+    rows = c.fetchall()
+    conn.close()
+    
+    employees = []
+    for row in rows:
+        employee_data = json.loads(row[4]) if row[4] else {}
+        employees.append({
+            "id": row[0],
+            "name": row[1],
+            "department": row[2],
+            "years_with_company": row[3],
+            "project_assigned": row[5],
+            **employee_data
+        })
+    
+    return employees
+
 def populate_employees_with_mock_data():
     mock_employees = [
         {

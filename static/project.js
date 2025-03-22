@@ -10,7 +10,6 @@ let autoSaveTimer;
 let hasUnsavedChanges = false;
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Get projectId from URL or localStorage
     const urlParams = new URLSearchParams(window.location.search);
     
     // Check if this is a request for a new project
@@ -35,6 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
         // Clear any existing members
         document.getElementById("members").innerHTML = "";
         
+        // Initialize empty assigned members section
+        renderAssignedMembersSection([]);
+        
         console.log(`Created new project with ID: ${projectId}`);
     } else {
         // If not a new project, try to get the ID from URL or localStorage
@@ -47,13 +49,21 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Load from DB
             loadProjectData(projectId);
+            
+            // Also fetch assigned employees for this project
+            fetchAssignedEmployees(projectId);
         } else {
             // If no ID was found, create a new project
             projectId = `project_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
             localStorage.setItem("currentProjectId", projectId);
             console.log(`No project ID found, creating new with ID: ${projectId}`);
+            
+            // Initialize empty assigned members section
+            renderAssignedMembersSection([]);
         }
     }
+
+
 
     // Save button
     document.getElementById("save-project").addEventListener("click", () => {
@@ -115,6 +125,90 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+
+// Add this new function to fetch and display assigned employees
+// No changes needed to the fetchAssignedEmployees function as it's already
+// calling the correct endpoint, but I'm including it for clarity:
+
+function fetchAssignedEmployees(projectId) {
+    fetch(`/get_assigned_employees?project_id=${encodeURIComponent(projectId)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                renderAssignedMembersSection(data.employees || []);
+            } else {
+                console.error("Failed to fetch assigned employees:", data.message);
+                renderAssignedMembersSection([]);
+            }
+        })
+        .catch(error => {
+            console.error("Error fetching assigned employees:", error);
+            renderAssignedMembersSection([]);
+        });
+}
+
+// Add this function to render the assigned members section
+function renderAssignedMembersSection(employees) {
+    // First check if the assigned-members-container exists, if not, create it
+    let container = document.getElementById("assigned-members-container");
+    
+    if (!container) {
+        // Find where to insert the container (at the top of the page)
+        const mainContainer = document.querySelector('.container') || document.body;
+        const firstChild = mainContainer.firstChild;
+        
+        // Create the container
+        container = document.createElement('div');
+        container.id = 'assigned-members-container';
+        container.className = 'assigned-members-container';
+        
+        // Insert at the top
+        mainContainer.insertBefore(container, firstChild);
+    }
+    
+    // Now render the assigned members
+    if (employees && employees.length > 0) {
+        // Generate HTML for assigned members display
+        container.innerHTML = `
+            <div class="assigned-members-header">
+                <h3>🧑‍💼 Assigned Team Members</h3>
+            </div>
+            <div class="assigned-members-grid">
+                ${employees.map(emp => `
+                    <div class="assigned-member-card">
+                        <div class="member-avatar">${getInitials(emp.name)}</div>
+                        <div class="member-info">
+                            <h4>${emp.name}</h4>
+                            <p>${emp.department || 'Department N/A'}</p>
+                            <p><small>${emp.years_with_company ? emp.years_with_company + ' years' : ''}</small></p>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+    } else {
+        // No assigned members yet
+        container.innerHTML = `
+            <div class="assigned-members-header">
+                <h3>🧑‍💼 Assigned Team Members</h3>
+            </div>
+            <div class="no-members-message">
+                <p>No team members have been assigned yet.</p>
+                <p>Go to Timeline to assign members to tasks.</p>
+            </div>
+        `;
+    }
+}
+
+// Helper function to get initials from name
+function getInitials(name) {
+    return name
+        .split(' ')
+        .map(part => part.charAt(0))
+        .join('')
+        .toUpperCase();
+}
+
 
 function loadProjectData(id) {
     console.log(`Loading project data for ID: ${id}`);
