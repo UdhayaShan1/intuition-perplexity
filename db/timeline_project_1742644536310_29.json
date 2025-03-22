@@ -5,8 +5,8 @@
     {
       "member": 1,
       "role": "ML Engineer",
-      "summary": "ML Engineer will be trained on Logistic and then implement it",
-      "task_description": "Learn Logistic and implement it",
+      "summary": "The ML Engineer will be responsible for learning Logistic and implementing it in the project.",
+      "task_description": "Learn Logistic",
       "training_time_days": 10,
       "implementation_time_days": 20,
       "total_duration_days": 30,
@@ -16,8 +16,8 @@
     {
       "member": 2,
       "role": "Dev Ops",
-      "summary": "Dev Ops will be trained on CI/CD and then implement it",
-      "task_description": "Learn CI/CD and implement it",
+      "summary": "The Dev Ops will be responsible for learning CI/CD and implementing it in the project.",
+      "task_description": "Learn CI/CD",
       "training_time_days": 10,
       "implementation_time_days": 20,
       "total_duration_days": 30,

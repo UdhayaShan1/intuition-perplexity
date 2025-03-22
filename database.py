@@ -16,6 +16,14 @@ def init_db():
             project_data TEXT
         )
     ''')
+
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS timelines (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            project_name TEXT UNIQUE,
+            timeline_data TEXT
+        )
+    ''')
     conn.commit()
     conn.close()
 
@@ -45,6 +53,29 @@ def save_project_to_db(project_name, project_data):
         print(f"Verification successful, retrieved data has {len(saved_data.get('members', []))} members")
     else:
         print("Warning: Could not verify save operation")
+
+def save_timeline_to_db(project_name, timeline_data):
+    print(f"Saving timeline for project {project_name} to database")
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    timeline_data_json = json.dumps(timeline_data)
+    c.execute('''
+        INSERT OR REPLACE INTO timelines (project_name, timeline_data)
+        VALUES (?, ?)
+    ''', (project_name, timeline_data_json))
+    conn.commit()
+    conn.close()
+    print(f"Timeline for project {project_name} saved successfully")
+
+def load_timeline_from_db(project_name):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('SELECT timeline_data FROM timelines WHERE project_name = ?', (project_name,))
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return json.loads(row[0])
+    return None
 
 def load_project_from_db(project_name):
     conn = sqlite3.connect(DB_PATH)

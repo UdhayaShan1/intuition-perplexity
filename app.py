@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import webbrowser
 from threading import Timer
-from database import init_db, save_project_to_db, load_project_from_db, get_all_projects
+from database import init_db, save_project_to_db, load_project_from_db, get_all_projects, save_timeline_to_db
 import os
 import json
 import openai
@@ -78,9 +78,7 @@ def ai_generate_timeline():
     print("Response")
     print(content)
     # ✅ Save to file
-    timeline_path = os.path.join(DB_DIR, f"timeline_{project_name}.json")
-    with open(timeline_path, 'w') as f:
-        json.dump(timeline_json, f, indent=2)
+    save_timeline_to_db(project_name, timeline_json)
     return jsonify(timeline_json)
 
 
