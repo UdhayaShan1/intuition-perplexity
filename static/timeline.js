@@ -240,6 +240,7 @@ function checkAllTasksAssigned() {
     }
 }
 
+
 function submitPlan() {
     const submitBtn = document.getElementById('submit-plan-button');
     submitBtn.disabled = true;
