@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import webbrowser
 from threading import Timer
 from database import init_db, save_project_to_db, load_project_from_db, get_all_projects, save_timeline_to_db
@@ -360,6 +360,16 @@ def generate_email():
 
     email_content = response.choices[0].message['content'].strip()
     return jsonify({"email": email_content})
+
+@app.route('/get_projects')
+def get_projects():
+    try:
+        # Reuse the existing function to get all projects
+        projects = get_all_projects()
+        return jsonify(projects)
+    except Exception as e:
+        print(f"Error fetching projects: {str(e)}")
+        return jsonify([])
 
 # Add this new route to handle employee project views
 @app.route('/employee_project_view')

@@ -39,13 +39,17 @@ def save_employee_to_db(employee_data):
         - general_interests
         - skills
         - personalities
+        - liked_projects (optional)
+        - disliked_projects (optional)
     """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     employee_json = json.dumps({
         "general_interests": employee_data["general_interests"],
         "skills": employee_data["skills"],
-        "personalities": employee_data["personalities"]
+        "personalities": employee_data["personalities"],
+        "liked_projects": employee_data.get("liked_projects", []),
+        "disliked_projects": employee_data.get("disliked_projects", [])
     })
     c.execute('''
         INSERT INTO employees (name, department, years_with_company, employee_data, project_assigned)
@@ -59,8 +63,6 @@ def save_employee_to_db(employee_data):
     ))
     conn.commit()
     conn.close()
-
-
 def get_all_employees():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()

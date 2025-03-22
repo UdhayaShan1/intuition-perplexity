@@ -150,7 +150,24 @@
                         <div id="trait-validation-message" class="mt-2 text-danger" style="display: none;">
                             Please select at least 3 personality traits.
                         </div>
-                    </div>
+
+                        <h4 class="mt-4">Project Preferences</h4>
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="liked-projects">Projects You're Interested In (select up to 3)</label>
+                                <select multiple class="form-control" id="liked-projects" size="5">
+                                    <option value="">Loading projects...</option>
+                                </select>
+                                <small class="form-text text-muted">Hold Ctrl (or Cmd on Mac) to select multiple projects (max 3)</small>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="disliked-projects">Projects You're Less Interested In (select up to 3)</label>
+                                <select multiple class="form-control" id="disliked-projects" size="5">
+                                    <option value="">Loading projects...</option>
+                                </select>
+                                <small class="form-text text-muted">Hold Ctrl (or Cmd on Mac) to select multiple projects (max 3)</small>
+                            </div>
+                        </div>
                     
                     <button type="submit" class="btn btn-primary btn-lg mt-4">Register</button>
                 </form>

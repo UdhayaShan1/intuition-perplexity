@@ -74,10 +74,10 @@ function renderAITimeline(data) {
         const card = document.createElement('div');
         card.className = 'timeline-card';
         card.dataset.taskId = index; // Add task ID as data attribute
-
+    
         // Determine if fields should be editable based on role
         const isEditable = userRole === 'manager';
-
+    
         // Create form fields with initial values from the data
         const infoHTML = `
             <h3>👤 Member ${item.member} - ${item.role}</h3>
@@ -126,68 +126,89 @@ function renderAITimeline(data) {
             </div>
             ${isEditable ? `<button class="btn update-chart-btn">Update Gantt Chart</button>` : ''}
         `;
-
+    
         card.innerHTML = infoHTML;
         
-        // Only add functionality for managers
-        if (userRole === 'manager') {
-            // Add event listeners for real-time total calculation
-            const updateTotalDuration = (taskCard) => {
-                const trainingDays = parseInt(taskCard.querySelector('[data-field="training_time_days"]').value) || 0;
-                const implDays = parseInt(taskCard.querySelector('[data-field="implementation_time_days"]').value) || 0;
-                const totalDays = trainingDays + implDays;
-                
-                // Update end date based on start date and total duration
-                const startDateInput = taskCard.querySelector('[data-field="start_date"]');
-                const endDateInput = taskCard.querySelector('.read-only-field:last-child');
-                
-                if (startDateInput.value) {
-                    const startDate = new Date(startDateInput.value);
-                    const endDate = new Date(startDate);
-                    endDate.setDate(startDate.getDate() + totalDays);
-                    
-                    // Format as YYYY-MM-DD for the input
-                    const endDateStr = endDate.toISOString().split('T')[0];
-                    endDateInput.textContent = endDateStr;
-                    
-                    // Update the data item
-                    const taskId = parseInt(taskCard.dataset.taskId);
-                    if (!isNaN(taskId) && data.timeline[taskId]) {
-                        data.timeline[taskId].end_date = endDateStr;
-                        data.timeline[taskId].total_duration_days = totalDays;
-                    }
-                }
-            };
+        // Add recommendations section if available
+        if (item.recommendations && item.recommendations.length > 0) {
+            const recommendBox = document.createElement('div');
+            recommendBox.className = 'recommend-box';
+            recommendBox.innerHTML = `<h4>🧑‍💼 Recommended Employees</h4>`;
             
-            // Add input event listeners to update the data model
-            card.querySelectorAll('.editable-field').forEach(input => {
-                input.addEventListener('change', function() {
-                    const taskId = parseInt(card.dataset.taskId);
-                    const fieldName = this.dataset.field;
-                    
-                    if (!isNaN(taskId) && data.timeline[taskId]) {
-                        // Update the data model with the new value
-                        data.timeline[taskId][fieldName] = this.value;
-                        
-                        // If we changed training or implementation days, or start date, recalculate end date
-                        if (['training_time_days', 'implementation_time_days', 'start_date'].includes(fieldName)) {
-                            updateTotalDuration(card);
-                        }
-                    }
-                });
+            const recommendList = document.createElement('ul');
+            
+            item.recommendations.forEach(rec => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <strong>${rec.name}</strong>
+                    <p>${rec.reason}</p>
+                    <button class="btn btn-sm btn-info" onclick="showEmployeeDetails('${rec.name.replace(/'/g, "\\'")}', ${index})">
+                        View Details
+                    </button>
+                `;
+                recommendList.appendChild(listItem);
             });
             
-            // Add update button event listener
+            recommendBox.appendChild(recommendList);
+            card.appendChild(recommendBox);
+        }
+        
+        // Only add functionality for managers
+// Inside the renderAITimeline function, replace the comment where it says "Only add functionality for managers"
+
+        // Only add functionality for managers
+        if (userRole === 'manager') {
+            // Add event listeners to update chart buttons
             const updateBtn = card.querySelector('.update-chart-btn');
             if (updateBtn) {
-                updateBtn.addEventListener('click', function(event) {
-                    // Re-render the chart with updated data
+                updateBtn.addEventListener('click', function() {
+                    // Get all updated values from this card
+                    const fields = card.querySelectorAll('.editable-field');
+                    let updatedValues = {};
+                    
+                    fields.forEach(field => {
+                        const fieldName = field.dataset.field;
+                        const value = field.value;
+                        
+                        if (fieldName === 'training_time_days' || fieldName === 'implementation_time_days') {
+                            updatedValues[fieldName] = parseInt(value) || 0;
+                        } else {
+                            updatedValues[fieldName] = value;
+                        }
+                    });
+                    
+                    // Update the data object with new values
+                    Object.assign(data.timeline[index], updatedValues);
+                    
+                    // Recalculate end date based on start date and durations
+                    if (updatedValues.start_date) {
+                        const startDate = new Date(updatedValues.start_date);
+                        const totalDays = (data.timeline[index].training_time_days || 0) + 
+                                        (data.timeline[index].implementation_time_days || 0);
+                        
+                        const endDate = new Date(startDate);
+                        endDate.setDate(endDate.getDate() + totalDays);
+                        
+                        data.timeline[index].end_date = endDate.toISOString().split('T')[0];
+                        
+                        // Update the end date display in the UI
+                        const endDateField = card.querySelector('.field-group:nth-child(6) .read-only-field');
+                        if (endDateField) {
+                            endDateField.textContent = data.timeline[index].end_date;
+                        }
+                    }
+                    
+                    // Update the Gantt chart
                     renderGanttChart(data);
-                    saveTimelineToDatabase(data, event.target);
+                    
+                    // Save changes to database if we're in manager mode
+                    if (userRole === 'manager') {
+                        saveTimelineToDatabase(data, this);
+                    }
                 });
             }
         }
-
+    
         container.appendChild(card);
     });
 
