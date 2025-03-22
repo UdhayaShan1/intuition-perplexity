@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>This is the Project Page</h1>
+    <a href="{{ url_for('home') }}">Back to Home</a>
+
+    <!-- General Task Box -->
+    <div class="general-task">
+        <label for="general-task-text">Task to do:</label>
+        <textarea id="general-task-text" class="general-task-box" placeholder="Describe the general task..."></textarea>
+    </div>
+
+    <div id="members"></div>
+
+    <button class="add-member-btn" onclick="addMember()">Add Anonymous Member</button>
+    <button id="gentimeline" class="gentimeline">Generate Timeline</button>
+    <script src="{{ url_for('static', filename='project.js') }}"></script>
+
+    <script>
+
+
+
+
+        function addMember() {
+            const container = document.createElement('div');
+            container.className = 'member-container';
+
+            const thumbnail = document.createElement('div');
+            thumbnail.className = 'thumbnail';
+            thumbnail.innerText = 'No image';
+
+            const rightSide = document.createElement('div');
+            rightSide.className = 'member-details';
+
+            const taskInput = document.createElement('input');
+            taskInput.type = 'text';
+            taskInput.placeholder = 'Overview of the Project';
+            taskInput.className = 'task-input';
+
+            const implTextarea = document.createElement('textarea');
+            implTextarea.placeholder = 'Possible overall implementations to do';
+            implTextarea.className = 'implementation-box';
+
+            const trainingTextarea = document.createElement('textarea');
+            trainingTextarea.placeholder = 'Trainings/Courses to do';
+            trainingTextarea.className = 'training-box';
+
+            const note = document.createElement('textarea');
+            note.className = 'note-box';
+            note.placeholder = 'Remarks';
+
+            rightSide.appendChild(taskInput);
+            rightSide.appendChild(implTextarea);
+            rightSide.appendChild(trainingTextarea);
+            rightSide.appendChild(note);
+
+            container.appendChild(thumbnail);
+            container.appendChild(rightSide);
+
+            document.getElementById('members').appendChild(container);
+        }
+    </script>
+</body>
+</html>
