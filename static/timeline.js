@@ -49,39 +49,161 @@ function renderAITimeline(data) {
         card.className = 'timeline-card';
         card.dataset.taskId = index; // Add task ID as data attribute
 
+        // Create editable fields with initial values from the data
         const infoHTML = `
             <h3>👤 Member ${item.member} - ${item.role}</h3>
-            <p><strong>📝 Summary:</strong> ${item.summary}</p>
-            <p><strong>🧠 Task:</strong> ${item.task_description}</p>
-            <p><strong>📘 Training Time:</strong> ${item.training_time_days} day(s)</p>
-            <p><strong>💻 Implementation Time:</strong> ${item.implementation_time_days} day(s)</p>
-            <p><strong>🧮 Total Duration:</strong> ${item.total_duration_days} day(s)</p>
-            <p><strong>📅 Start Date:</strong> ${item.start_date}</p>
-            <p><strong>📅 End Date:</strong> ${item.end_date}</p>
+            <div class="editable-fields">
+                <div class="field-group">
+                    <label><strong>📝 Summary:</strong></label>
+                    <input type="text" class="editable-field" data-field="summary" value="${item.summary || ''}" />
+                </div>
+                <div class="field-group">
+                    <label><strong>🧠 Task:</strong></label>
+                    <textarea class="editable-field" data-field="task_description">${item.task_description || ''}</textarea>
+                </div>
+                <div class="field-group">
+                    <label><strong>📘 Training Time:</strong></label>
+                    <div class="input-with-unit">
+                        <input type="number" min="0" class="editable-field" data-field="training_time_days" value="${item.training_time_days || 0}" />
+                        <span>day(s)</span>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label><strong>💻 Implementation Time:</strong></label>
+                    <div class="input-with-unit">
+                        <input type="number" min="0" class="editable-field" data-field="implementation_time_days" value="${item.implementation_time_days || 0}" />
+                        <span>day(s)</span>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label><strong>📅 Start Date:</strong></label>
+                    <input type="date" class="editable-field" data-field="start_date" value="${item.start_date || ''}" />
+                </div>
+                <div class="field-group">
+                    <label><strong>📅 End Date:</strong></label>
+                    <input type="date" class="editable-field" data-field="end_date" value="${item.end_date || ''}" disabled />
+                    <small class="help-text">End date is calculated automatically</small>
+                </div>
+            </div>
+            <button class="btn update-chart-btn">Update Gantt Chart</button>
         `;
 
         card.innerHTML = infoHTML;
-
-        // Recommendations section below
-        if (item.recommendations && item.recommendations.length > 0) {
-            const recommendBox = document.createElement('div');
-            recommendBox.className = 'recommend-box';
-            recommendBox.innerHTML = `
-                <h4>🌟 Top 3 Recommended Employees</h4>
-                <ul>
-                    ${item.recommendations.map(rec => `
-                        <li>
-                            <strong><a onclick="showEmployeeDetails('${rec.name}', ${index})" class="employee-link">${rec.name}</a></strong>: ${rec.reason}
-                        </li>
-                    `).join("")
+        
+        // Add event listeners for real-time total calculation
+        const updateTotalDuration = (taskCard) => {
+            const trainingDays = parseInt(taskCard.querySelector('[data-field="training_time_days"]').value) || 0;
+            const implDays = parseInt(taskCard.querySelector('[data-field="implementation_time_days"]').value) || 0;
+            const totalDays = trainingDays + implDays;
+            
+            // Update end date based on start date and total duration
+            const startDateInput = taskCard.querySelector('[data-field="start_date"]');
+            const endDateInput = taskCard.querySelector('[data-field="end_date"]');
+            
+            if (startDateInput.value) {
+                const startDate = new Date(startDateInput.value);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + totalDays);
+                
+                // Format as YYYY-MM-DD for the input
+                const endDateStr = endDate.toISOString().split('T')[0];
+                endDateInput.value = endDateStr;
+                
+                // Update the data item
+                const taskId = parseInt(taskCard.dataset.taskId);
+                if (!isNaN(taskId) && data.timeline[taskId]) {
+                    data.timeline[taskId].end_date = endDateStr;
+                    data.timeline[taskId].total_duration_days = totalDays;
+                }
+            }
+        };
+        
+        // Add input event listeners to update the data model
+        card.querySelectorAll('.editable-field').forEach(input => {
+            input.addEventListener('change', function() {
+                const taskId = parseInt(card.dataset.taskId);
+                const fieldName = this.dataset.field;
+                
+                if (!isNaN(taskId) && data.timeline[taskId]) {
+                    // Update the data model with the new value
+                    data.timeline[taskId][fieldName] = this.value;
+                    
+                    // If we changed training or implementation days, or start date, recalculate end date
+                    if (['training_time_days', 'implementation_time_days', 'start_date'].includes(fieldName)) {
+                        updateTotalDuration(card);
                     }
-                </ul>
-            `;
-            card.appendChild(recommendBox);
-        }
+                }
+            });
+        });
+        
+        // Add update button event listener
+        card.querySelector('.update-chart-btn').addEventListener('click', function() {
+            // Re-render the chart with updated data
+            renderGanttChart(data);
+        });
 
         container.appendChild(card);
     });
+
+    // Add some CSS for the editable fields
+    const style = document.createElement('style');
+    style.textContent = `
+        .editable-fields {
+            margin-top: 10px;
+        }
+        .field-group {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: flex-start;
+        }
+        .field-group label {
+            min-width: 180px;
+            margin-right: 10px;
+            padding-top: 5px;
+        }
+        .editable-field {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+            font-size: 14px;
+        }
+        textarea.editable-field {
+            min-height: 60px;
+            resize: vertical;
+        }
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+        }
+        .input-with-unit input {
+            width: 60px;
+            margin-right: 5px;
+        }
+        .help-text {
+            display: block;
+            color: #777;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+        .update-chart-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .update-chart-btn:hover {
+            background-color: #45a049;
+        }
+    `;
+    document.head.appendChild(style);
 
     if (data.caution) {
         const cautionBox = document.createElement('div');
