@@ -26,6 +26,7 @@ def load_project():
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
             data = json.load(f)
+        print("Retrieved")
         return jsonify(data)
     return jsonify({"members": [], "generalTask": ""})  # new project
 

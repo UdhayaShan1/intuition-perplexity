@@ -9,10 +9,14 @@ localStorage.setItem("currentProject", currentProject);
 document.addEventListener("DOMContentLoaded", () => {
     // Load from DB
     fetch(`/load_project?project_name=${currentProject}`)
+    
         .then(res => res.json())
         .then(data => {
+            console.log("Loaded data:", data);
             projectData = data;
             document.getElementById("general-task-text").value = data.generalTask || "";
+            console.log("Type of members:", typeof data.members);
+            console.log("Is array:", Array.isArray(data.members));
             data.members.forEach(member => addMember(member));
         });
 
@@ -23,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function addMember(data = {}) {
+    console.log("Adding member:", data);
     const container = document.createElement('div');
     container.className = 'member-container';
 
