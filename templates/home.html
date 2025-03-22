@@ -15,7 +15,10 @@
         <div class="jumbotron">
             <h2 class="display-4">Welcome!</h2>
             <p class="lead">Start managing your team projects efficiently.</p>
-            <a href="{{ url_for('project', new='true') }}" class="btn btn-primary btn-lg mb-3">Create New Project</a>
+            <div class="btn-group mb-3">
+                <a href="{{ url_for('project', new='true') }}" class="btn btn-primary btn-lg mr-3">Create New Project</a>
+                <a href="{{ url_for('employee_registration') }}" class="btn btn-success btn-lg">Register as Employee</a>
+            </div>
         </div>
 
         <!-- Project List -->

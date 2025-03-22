@@ -215,6 +215,41 @@ def submit_plan():
         print(f"Error in submit_plan: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# Add these routes to your app.py file
+
+@app.route('/employee_registration')
+def employee_registration():
+    return render_template('employee_registration.html')
+
+@app.route('/register_employee', methods=['POST'])
+def register_employee():
+    try:
+        data = request.get_json()
+        
+        if not data:
+            return jsonify({"status": "error", "message": "No data provided"}), 400
+            
+        required_fields = ['name', 'department', 'years_with_company', 'general_interests', 'skills', 'personalities']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"status": "error", "message": f"Missing required field: {field}"}), 400
+        
+        # Additional validation
+        if len(data['personalities']) < 3:
+            return jsonify({"status": "error", "message": "Please select at least 3 personality traits"}), 400
+            
+        # Save employee to database
+        employees_database.save_employee_to_db(data)
+        
+        return jsonify({
+            "status": "success",
+            "message": "Employee registered successfully"
+        })
+        
+    except Exception as e:
+        print(f"Error in register_employee: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 def open_browser():
     webbrowser.open_new('http://127.0.0.1:5000/')
 

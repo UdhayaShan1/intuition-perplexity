@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Registration</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <header class="mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1>Employee Registration</h1>
+                <a href="{{ url_for('home') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+            </div>
+        </header>
+
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0">Register Your Details</h3>
+            </div>
+            <div class="card-body">
+                <form id="employeeRegistrationForm">
+                    <!-- Basic Information -->
+                    <h4>Basic Information</h4>
+                    <div class="form-group">
+                        <label for="employee-name">Full Name*</label>
+                        <input type="text" class="form-control" id="employee-name" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="employee-department">Department*</label>
+                            <select class="form-control" id="employee-department" required>
+                                <option value="">Select Department</option>
+                                <option value="AI Research">AI Research</option>
+                                <option value="Frontend">Frontend</option>
+                                <option value="Backend">Backend</option>
+                                <option value="DevOps">DevOps</option>
+                                <option value="Data Engineering">Data Engineering</option>
+                                <option value="Mobile Development">Mobile Development</option>
+                                <option value="UI/UX">UI/UX</option>
+                                <option value="QA/Testing">QA/Testing</option>
+                                <option value="Cybersecurity">Cybersecurity</option>
+                                <option value="Cloud Infra">Cloud Infrastructure</option>
+                                <option value="Product">Product Management</option>
+                                <option value="ML Ops">ML Ops</option>
+                                <option value="Analytics">Analytics</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="employee-years">Years with Company*</label>
+                            <input type="number" class="form-control" id="employee-years" min="0" max="50" required>
+                        </div>
+                    </div>
+                    
+                    <!-- Skills and Interests -->
+                    <h4 class="mt-4">Skills and Interests</h4>
+                    <div class="form-group">
+                        <label for="employee-interests">General Interests (comma separated)*</label>
+                        <input type="text" class="form-control" id="employee-interests" 
+                               placeholder="E.g. Machine Learning, Web Development, Cloud Computing" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="employee-skills">Skills (comma separated)*</label>
+                        <input type="text" class="form-control" id="employee-skills" 
+                               placeholder="E.g. Python, JavaScript, AWS, Docker" required>
+                    </div>
+                    
+                    <!-- Personality Traits -->
+                    <h4 class="mt-4">Personality Traits</h4>
+                    <p class="text-muted small">Select traits that describe you (choose at least 3)</p>
+                    
+                    <div class="form-group personality-traits">
+                        <div class="row">
+                            <div class="col-md-3 col-sm-6">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-innovative">
+                                    <label class="custom-control-label" for="trait-innovative">Innovative</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-analytical">
+                                    <label class="custom-control-label" for="trait-analytical">Analytical</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-creative">
+                                    <label class="custom-control-label" for="trait-creative">Creative</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-organized">
+                                    <label class="custom-control-label" for="trait-organized">Organized</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-team-player">
+                                    <label class="custom-control-label" for="trait-team-player">Team Player</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-detail-oriented">
+                                    <label class="custom-control-label" for="trait-detail-oriented">Detail-Oriented</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-proactive">
+                                    <label class="custom-control-label" for="trait-proactive">Proactive</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-adaptable">
+                                    <label class="custom-control-label" for="trait-adaptable">Adaptable</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-communicative">
+                                    <label class="custom-control-label" for="trait-communicative">Communicative</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-resilient">
+                                    <label class="custom-control-label" for="trait-resilient">Resilient</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-logical">
+                                    <label class="custom-control-label" for="trait-logical">Logical</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-curious">
+                                    <label class="custom-control-label" for="trait-curious">Curious</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-flexible">
+                                    <label class="custom-control-label" for="trait-flexible">Flexible</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-strategic">
+                                    <label class="custom-control-label" for="trait-strategic">Strategic</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-empathetic">
+                                    <label class="custom-control-label" for="trait-empathetic">Empathetic</label>
+                                </div>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input trait-checkbox" id="trait-efficient">
+                                    <label class="custom-control-label" for="trait-efficient">Efficient</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="trait-validation-message" class="mt-2 text-danger" style="display: none;">
+                            Please select at least 3 personality traits.
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-lg mt-4">Register</button>
+                </form>
+                
+                <!-- Success/Error Alert -->
+                <div class="alert mt-4" id="registration-alert" style="display: none;"></div>
+            </div>
+        </div>
+
+        <footer class="mt-5">
+            <p>&copy; 2025 AI Project Manager</p>
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{{ url_for('static', filename='employee_registration.js') }}"></script>
+</body>
+</html>
