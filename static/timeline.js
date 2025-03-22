@@ -25,8 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
             renderGanttChart(data);
             renderAITimeline(data);
             checkAllTasksAssigned(); // Check initially in case we already have assignments
+            saveTimelineToDatabase(data);
         })
         .catch(err => {
+            console.log(err);
             spinner.style.display = "none"; // Hide on error too
             document.getElementById("timeline-container").innerText = "Error loading timeline.";
             console.error(err);
@@ -142,9 +144,10 @@ function renderAITimeline(data) {
         });
         
         // Add update button event listener
-        card.querySelector('.update-chart-btn').addEventListener('click', function() {
+        card.querySelector('.update-chart-btn').addEventListener('click', function(event) {
             // Re-render the chart with updated data
             renderGanttChart(data);
+            saveTimelineToDatabase(data, event.target);
         });
 
         container.appendChild(card);
@@ -977,3 +980,75 @@ function renderGanttChart(data) {
       });
   
   }}
+
+  function saveTimelineToDatabase(data, buttonElement = null) {
+    // Create a status indicator (either use the button or create a temporary one)
+    let statusElement = buttonElement;
+    let originalText = '';
+    let isTemporary = false;
+    
+    if (!statusElement) {
+        // Initial load or non-button call - create a temporary status indicator
+        isTemporary = true;
+        statusElement = document.createElement('div');
+        statusElement.style.display = 'none'; // No need to show for automatic saves
+    } else {
+        // Button click - use the button for status
+        originalText = statusElement.textContent;
+        statusElement.textContent = "Saving...";
+        statusElement.disabled = true;
+    }
+    
+    // Create a copy of the data for saving (without the consideredEmployees which is only needed for the UI)
+    const saveData = {
+        project: data.project,
+        generalTask: data.generalTask,
+        timeline: data.timeline,
+        caution: data.caution
+    };
+    
+    // Send a request to save the timeline data
+    fetch(`/save_timeline?project_name=${projectId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(saveData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(result => {
+        console.log("Timeline saved successfully:", result);
+        
+        if (!isTemporary) {
+            // Only update UI for button clicks
+            statusElement.textContent = "✓ Updated";
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                statusElement.textContent = originalText;
+                statusElement.disabled = false;
+            }, 2000);
+        }
+    })
+    .catch(error => {
+        console.error('Error saving timeline:', error);
+        
+        if (!isTemporary) {
+            // Only update UI for button clicks
+            statusElement.textContent = "❌ Error";
+            
+            alert("Failed to save timeline updates. Please try again.");
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                statusElement.textContent = originalText;
+                statusElement.disabled = false;
+            }, 2000);
+        }
+    });
+}

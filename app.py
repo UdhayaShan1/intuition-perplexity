@@ -361,6 +361,34 @@ def generate_email():
     email_content = response.choices[0].message['content'].strip()
     return jsonify({"email": email_content})
 
+@app.route('/save_timeline', methods=['POST'])
+def save_timeline():
+    try:
+        project_name = request.args.get("project_name")
+        if not project_name:
+            return jsonify({"status": "error", "message": "Missing project name"}), 400
+            
+        data = request.get_json()
+        if not data:
+            return jsonify({"status": "error", "message": "Missing timeline data"}), 400
+        
+        # Save the timeline data to the database
+        save_timeline_to_db(project_name, data)
+        
+        return jsonify({
+            "status": "success",
+            "message": "Timeline updated successfully"
+        })
+        
+    except Exception as e:
+        import traceback
+        print(f"Error saving timeline: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({
+            "status": "error", 
+            "message": str(e)
+        }), 500
+
 def open_browser():
     webbrowser.open_new('http://127.0.0.1:5000/')
 
