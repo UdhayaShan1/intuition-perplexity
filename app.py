@@ -5,10 +5,6 @@ import json
 
 app = Flask(__name__)
 
-DB_DIR = os.path.join(os.path.dirname(__file__), 'db')
-os.makedirs(DB_DIR, exist_ok=True)
-
-
 # existing setup
 app = Flask(__name__)
 DB_DIR = os.path.join(os.path.dirname(__file__), 'db')
