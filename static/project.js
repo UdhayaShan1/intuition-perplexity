@@ -4,10 +4,11 @@ let projectData = {
 };
 
 let currentProject = "project1"; // Changeable
+localStorage.setItem("currentProject", currentProject);
 
 document.addEventListener("DOMContentLoaded", () => {
     // Load from DB
-    fetch(`/load_project`)
+    fetch(`/load_project?project_name=${currentProject}`)
         .then(res => res.json())
         .then(data => {
             projectData = data;
@@ -85,7 +86,7 @@ function updateProjectData() {
 
 function saveProject() {
     updateProjectData();
-    fetch(`/save_project`, {
+    fetch(`/save_project?project_name=${currentProject}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(projectData)
@@ -93,5 +94,8 @@ function saveProject() {
     .then(res => res.json())
     .then(response => {
         console.log("Saved:", response.status);
+    })
+    .catch(err => {
+        console.error("Save failed:", err);
     });
 }

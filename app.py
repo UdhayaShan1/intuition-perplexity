@@ -3,7 +3,9 @@ import os
 import json
 
 app = Flask(__name__)
+
 DB_DIR = os.path.join(os.path.dirname(__file__), 'db')
+os.makedirs(DB_DIR, exist_ok=True)
 
 @app.route('/')
 def home():
@@ -20,9 +22,6 @@ def timeline():
 @app.route('/load_project')
 def load_project():
     project_name = request.args.get("project_name")
-    if not project_name:
-        return jsonify({"members": [], "generalTask": ""})
-
     filepath = os.path.join(DB_DIR, f"{project_name}.json")
     if os.path.exists(filepath):
         with open(filepath, 'r') as f:
