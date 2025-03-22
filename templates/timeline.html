@@ -4,12 +4,28 @@
     <meta charset="UTF-8">
     <title>Timeline</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container mt-5">
         <h1 class="mb-4">Timeline Page</h1>
-        <a href="javascript:history.back()" class="btn btn-secondary mb-4">Back to Project</a>
+        <button id="back-to-project" class="btn btn-secondary mb-4">Back to Project</button>
+        
+        <!-- Timeline content goes here -->
+        
     </div>
+    
+    <script>
+        // Get the project ID from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('id');
+        
+        // Set up the back button to return to the project with the correct ID
+        document.getElementById('back-to-project').addEventListener('click', () => {
+            window.location.href = `/project?id=${encodeURIComponent(projectId)}`;
+        });
+    </script>
+    
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

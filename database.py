@@ -20,14 +20,31 @@ def init_db():
     conn.close()
 
 def save_project_to_db(project_name, project_data):
+    print(f"Saving project {project_name} to database")
+    print(f"Data to save: {project_data}")
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
+    
+    # Convert project data to JSON string
+    project_data_json = json.dumps(project_data)
+    
+    # Use INSERT OR REPLACE to handle both new projects and updates
     c.execute('''
         INSERT OR REPLACE INTO projects (project_name, project_data)
         VALUES (?, ?)
-    ''', (project_name, json.dumps(project_data)))
+    ''', (project_name, project_data_json))
+    
     conn.commit()
     conn.close()
+    
+    print(f"Project {project_name} saved successfully")
+    
+    # Verify the save by retrieving it
+    saved_data = load_project_from_db(project_name)
+    if saved_data:
+        print(f"Verification successful, retrieved data has {len(saved_data.get('members', []))} members")
+    else:
+        print("Warning: Could not verify save operation")
 
 def load_project_from_db(project_name):
     conn = sqlite3.connect(DB_PATH)
