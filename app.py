@@ -29,80 +29,115 @@ from employees_database import get_all_employees
 
 @app.route('/ai_generate_timeline')
 def ai_generate_timeline():
-    project_name = request.args.get("project_name")
-    if not project_name:
-        return jsonify({"error": "Missing project name"}), 400
-
-    project = load_project_from_db(project_name)
-    employees = get_all_employees()
-
-    print("project is", project)
-    print("employees found:", len(employees))
-
-    prompt = f"""
-    You are a project planning AI assistant.
-
-    Given:
-    - A project with members and task data
-    - A list of employees with name, department, years_with_company, general_interests, skills, and personalities
-
-    Your job is to:
-    1. Generate a structured project timeline
-    2. For each project member, recommend the best top 3 employees from the list who fit the task
-    3. Include a short explanation why each employee fits based on their fields, skills, and traits
-
-    Here is the project:
-    {json.dumps(project, indent=2)}
-
-    Here is the employee pool:
-    {json.dumps(employees, indent=2)}
-
-    ✅ Return only valid JSON in this format:
-    {{
-      "project": "{project_name}",
-      "generalTask": "...",
-      "timeline": [
-        {{
-          "member": 1,
-          "role": "...",
-          "summary": "...",
-          "task_description": "...",
-          "training_time_days": ...,
-          "implementation_time_days": ...,
-          "total_duration_days": ...,
-          "start_date": "...",
-          "end_date": "...",
-          "recommendations": [
-            {{
-              "name": "...",
-              "reason": "..."
-            }}
-          ]
-        }}
-      ],
-      "caution": "..."
-    }}
-    """
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[{"role": "user", "content": prompt}],
-        temperature=0.3
-    )
-
-    content = response['choices'][0]['message']['content']
-    print("content is", content)
-
     try:
-        timeline_json = json.loads(content)
-    except json.JSONDecodeError:
-        return jsonify({"error": "OpenAI returned invalid JSON", "raw": content}), 500
+        project_name = request.args.get("project_name")
+        if not project_name:
+            return jsonify({"error": "Missing project name"}), 400
 
-    save_timeline_to_db(project_name, timeline_json)
-    timeline_json["consideredEmployees"] = employees
-    return jsonify(timeline_json)
+        project = load_project_from_db(project_name)
+        employees = get_all_employees()
 
+        print("Project is:", project)
+        print("Employees found:", len(employees))
 
+        prompt = f"""
+        You are a project planning AI assistant.
+
+        Given:
+        - A project with members and task data
+        - A list of employees with name, department, years_with_company, general_interests, skills, and personalities
+
+        Your job is to:
+        1. Generate a structured project timeline
+        2. For each project member, recommend the best top 3 employees from the list who fit the task
+        3. Include a short explanation why each employee fits based on their fields, skills, and traits
+
+        Here is the project:
+        {json.dumps(project, indent=2)}
+
+        Here is the employee pool:
+        {json.dumps(employees, indent=2)}
+
+        ✅ Return only valid JSON in this format:
+        {{
+          "project": "{project_name}",
+          "generalTask": "...",
+          "timeline": [
+            {{
+              "member": 1,
+              "role": "...",
+              "summary": "...",
+              "task_description": "...",
+              "training_time_days": ...,
+              "implementation_time_days": ...,
+              "total_duration_days": ...,
+              "start_date": "...",
+              "end_date": "...",
+              "recommendations": [
+                {{
+                  "name": "...",
+                  "reason": "..."
+                }}
+              ]
+            }}
+          ],
+          "caution": "..."
+        }}
+        """
+
+        # Check if API key is set
+        if not openai.api_key or openai.api_key.strip() == "":
+            print("ERROR: OpenAI API key is not set or is empty")
+            return jsonify({"error": "OpenAI API key is not configured"}), 500
+
+        try:
+            # Add timeout to prevent hanging requests
+            print("Making OpenAI API call...")
+            response = openai.ChatCompletion.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.3,
+                timeout=60  # 60 second timeout
+            )
+            
+            content = response['choices'][0]['message']['content']
+            print("OpenAI API call successful")
+            
+        except Exception as api_error:
+            print(f"OpenAI API Error: {str(api_error)}")
+            return jsonify({
+                "error": "Error with OpenAI API",
+                "details": str(api_error)
+            }), 500
+
+        try:
+            print("Parsing response content...")
+            timeline_json = json.loads(content)
+            print("JSON parsing successful")
+        except json.JSONDecodeError as json_error:
+            print(f"JSON parsing error: {str(json_error)}")
+            print(f"Raw content received: {content}")
+            return jsonify({
+                "error": "Could not parse OpenAI response as JSON", 
+                "raw_content": content,
+                "details": str(json_error)
+            }), 500
+
+        print(f"Saving timeline for project {project_name} to database")
+        save_timeline_to_db(project_name, timeline_json)
+        print(f"Timeline for project {project_name} saved successfully")
+        
+        timeline_json["consideredEmployees"] = employees
+        return jsonify(timeline_json)
+        
+    except Exception as e:
+        import traceback
+        print(f"Error in AI timeline generation: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({
+            "error": "Internal server error", 
+            "details": str(e)
+        }), 500
 
 @app.route('/')
 def home():
@@ -249,6 +284,29 @@ def register_employee():
     except Exception as e:
         print(f"Error in register_employee: {str(e)}")
         return jsonify({"status": "error", "message": str(e)}), 500
+
+@app.route('/generate_email', methods=['POST'])
+def generate_email():
+    data = request.get_json()
+    prompt = data.get('prompt')
+
+    if not prompt:
+        return jsonify({"error": "Missing prompt"}), 400
+
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=250,
+        n=1,
+        stop=None,
+        temperature=0.7,
+    )
+
+    email_content = response.choices[0].message['content'].strip()
+    return jsonify({"email": email_content})
 
 def open_browser():
     webbrowser.open_new('http://127.0.0.1:5000/')

@@ -150,7 +150,7 @@ function showEmployeeDetails(name, taskId) {
         <p><strong>Skills:</strong> ${(data.skills || []).join(', ')}</p>
         <p><strong>Personalities:</strong> ${(data.personalities || []).join(', ')}</p>
         <div class="button-group">
-            <button class="btn contact-btn">📩 Contact</button>
+            <button class="btn contact-btn" onclick="generateEmail('${emp.name}')">📩 Contact</button>
             ${assignButtonHtml}
         </div>
         <div id="assignment-message" class="assignment-message" style="display: none; margin-top: 15px;"></div>
@@ -294,4 +294,26 @@ function submitPlan() {
 
 function closeModal() {
     document.getElementById("employee-modal").style.display = "none";
+}
+
+function generateEmail(employeeName) {
+    const prompt = `Write a professional email to congratulate ${employeeName} for being selected to join a new work project.;`
+    fetch('/generate_email', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ prompt })
+    })
+    .then(response => response.json())
+    .then(data => {
+        const emailContent = encodeURIComponent(data.email);
+        const subject = encodeURIComponent(`Congratulations ${employeeName}`);
+        const mailtoLink = `https://mail.google.com/mail/?view=cm&fs=1&to=&su=${subject}&body=${emailContent};`
+        window.open(mailtoLink, '_blank');
+    })
+    .catch(error => {
+        console.error('Error generating email:', error);
+        alert('Failed to generate email.');
+    });
 }
