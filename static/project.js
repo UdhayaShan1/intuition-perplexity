@@ -12,29 +12,59 @@ let hasUnsavedChanges = false;
 document.addEventListener("DOMContentLoaded", () => {
     // Get projectId from URL or localStorage
     const urlParams = new URLSearchParams(window.location.search);
-    projectId = urlParams.get('id') || localStorage.getItem("currentProjectId");
     
-    if (!projectId) {
-        // If no project ID, generate a new one using timestamp and random number
+    // Check if this is a request for a new project
+    if (urlParams.get('new') === 'true') {
+        // Clear localStorage and generate a new ID for a new project
         projectId = `project_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
         localStorage.setItem("currentProjectId", projectId);
+        
+        // Set empty project data
+        projectData = {
+            ProjectName: "",
+            ProjectDescription: "",
+            ProjectDuration: "",
+            members: []
+        };
+        
+        // Update the form with empty values
+        document.getElementById("project-name").value = "";
+        document.getElementById("project-description").value = "";
+        document.getElementById("project-duration").value = "";
+        
+        // Clear any existing members
+        document.getElementById("members").innerHTML = "";
+        
+        console.log(`Created new project with ID: ${projectId}`);
+    } else {
+        // If not a new project, try to get the ID from URL or localStorage
+        projectId = urlParams.get('id') || localStorage.getItem("currentProjectId");
+        
+        if (projectId) {
+            localStorage.setItem("currentProjectId", projectId);
+            
+            console.log(`Loading existing project with ID: ${projectId}`);
+            
+            // Load from DB
+            fetch(`/load_project?project_name=${encodeURIComponent(projectId)}`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Loaded data:", data);
+                    projectData = data;
+                    document.getElementById("project-name").value = data.ProjectName || "";
+                    document.getElementById("project-description").value = data.ProjectDescription || "";
+                    document.getElementById("project-duration").value = data.ProjectDuration || "";
+                    if (data.members && data.members.length > 0) {
+                        data.members.forEach(member => addMember(member));
+                    }
+                });
+        } else {
+            // If no ID was found, create a new project
+            projectId = `project_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+            localStorage.setItem("currentProjectId", projectId);
+            console.log(`No project ID found, creating new with ID: ${projectId}`);
+        }
     }
-    
-    console.log(`Loading project with ID: ${projectId}`);
-
-    // Load from DB
-    fetch(`/load_project?project_name=${encodeURIComponent(projectId)}`)
-        .then(res => res.json())
-        .then(data => {
-            console.log("Loaded data:", data);
-            projectData = data;
-            document.getElementById("project-name").value = data.ProjectName || "";
-            document.getElementById("project-description").value = data.ProjectDescription || "";
-            document.getElementById("project-duration").value = data.ProjectDuration || "";
-            if (data.members && data.members.length > 0) {
-                data.members.forEach(member => addMember(member));
-            }
-        });
 
     // Save button
     document.getElementById("save-project").addEventListener("click", () => {

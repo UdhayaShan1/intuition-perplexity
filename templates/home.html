@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Home</title>
+    <title>Project Management</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
@@ -15,7 +15,35 @@
         <div class="jumbotron">
             <h2 class="display-4">Welcome!</h2>
             <p class="lead">Start managing your team projects efficiently.</p>
-            <a href="{{ url_for('project') }}" class="btn btn-primary btn-lg">Create New Project</a>
+            <a href="{{ url_for('project', new='true') }}" class="btn btn-primary btn-lg mb-3">Create New Project</a>
+        </div>
+
+        <!-- Project List -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Your Projects</h3>
+            </div>
+            <div class="card-body">
+                {% if projects %}
+                <div class="list-group">
+                    {% for project in projects %}
+                    <a href="{{ url_for('project', id=project.id) }}" class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ project.name }}</h5>
+                            {% if project.duration %}
+                            <small>{{ project.duration }}</small>
+                            {% endif %}
+                        </div>
+                        {% if project.description %}
+                        <p class="mb-1">{{ project.description }}</p>
+                        {% endif %}
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No projects yet. Create your first project to get started!</p>
+                {% endif %}
+            </div>
         </div>
 
         <footer class="mt-5">

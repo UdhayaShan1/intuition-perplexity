@@ -38,3 +38,23 @@ def load_project_from_db(project_name):
     if row:
         return json.loads(row[0])
     return None
+
+def get_all_projects():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('SELECT project_name, project_data FROM projects')
+    rows = c.fetchall()
+    conn.close()
+    
+    projects = []
+    for row in rows:
+        project_id = row[0]
+        project_data = json.loads(row[1])
+        projects.append({
+            "id": project_id,
+            "name": project_data.get("ProjectName") or "Unnamed Project",
+            "description": project_data.get("ProjectDescription") or "",
+            "duration": project_data.get("ProjectDuration") or ""
+        })
+    
+    return projects

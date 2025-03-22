@@ -1,16 +1,19 @@
 from flask import Flask, render_template, request, jsonify
 import webbrowser
 from threading import Timer
-from database import init_db, save_project_to_db, load_project_from_db
+from database import init_db, save_project_to_db, load_project_from_db, get_all_projects
 
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return render_template('home.html')
+    projects = get_all_projects()
+    return render_template('home.html', projects=projects)
 
 @app.route('/project')
 def project():
+    project_id = request.args.get('id')
+    # If no ID is provided, we'll create a new project (handled by project.js)
     return render_template('project.html')
 
 @app.route('/timeline')

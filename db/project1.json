@@ -1,23 +1,6 @@
 {
-  "ProjectName": "",
   "ProjectDescription": "",
   "ProjectDuration": "",
-  "members": [
-    {
-      "MemberRole": "",
-      "TrainingTime": "",
-      "TrainingDescription": "",
-      "ImplementationTime": "",
-      "ImplementationDescription": "",
-      "Other Remarks": ""
-    },
-    {
-      "MemberRole": "",
-      "TrainingTime": "",
-      "TrainingDescription": "",
-      "ImplementationTime": "",
-      "ImplementationDescription": "",
-      "Other Remarks": ""
-    }
-  ]
+  "ProjectName": "",
+  "members": []
 }
