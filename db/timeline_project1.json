@@ -1,0 +1,50 @@
+{
+  "project": "Smart Parking Management System",
+  "generalTask": "Develop a smart IoT-based parking management solution to optimize parking availability, monitor space usage, and provide real-time status updates to users.",
+  "timeline": [
+    {
+      "member": 1,
+      "role": "Frontend Developer",
+      "summary": "Developed user interface for parking dashboard, availability map, and booking screens using React.",
+      "task_description": "Training on React.js and Tailwind CSS to build responsive UI components.",
+      "training_time_days": 5,
+      "implementation_time_days": 25,
+      "total_duration_days": 30,
+      "start_date": "2022-01-01",
+      "end_date": "2022-01-30"
+    },
+    {
+      "member": 2,
+      "role": "Backend Developer",
+      "summary": "Built REST APIs for space tracking, user registration, and real-time occupancy updates using FastAPI.",
+      "task_description": "Refresher on RESTful API development and FastAPI integration with PostgreSQL.",
+      "training_time_days": 3,
+      "implementation_time_days": 30,
+      "total_duration_days": 33,
+      "start_date": "2022-01-31",
+      "end_date": "2022-03-04"
+    },
+    {
+      "member": 3,
+      "role": "IoT Specialist",
+      "summary": "Installed and configured IR sensors in parking lots, integrated with Raspberry Pi to send MQTT messages to backend.",
+      "task_description": "Training on Raspberry Pi sensors and MQTT protocol for real-time parking detection.",
+      "training_time_days": 7,
+      "implementation_time_days": 20,
+      "total_duration_days": 27,
+      "start_date": "2022-03-05",
+      "end_date": "2022-04-01"
+    },
+    {
+      "member": 4,
+      "role": "ML Engineer",
+      "summary": "Developed and deployed a model to predict space occupancy trends using historical data.",
+      "task_description": "Trained on TensorFlow Lite for deploying models on edge devices.",
+      "training_time_days": 10,
+      "implementation_time_days": 28,
+      "total_duration_days": 38,
+      "start_date": "2022-04-02",
+      "end_date": "2022-05-09"
+    }
+  ]
+}

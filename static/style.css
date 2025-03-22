@@ -237,3 +237,119 @@
     background-color: #218838;
 }
 
+/* General Page Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f0f2f5;
+    color: #333;
+    padding: 20px;
+    line-height: 1.6;
+}
+
+/* Main Title */
+h1 {
+    text-align: center;
+    color: #2b6777;
+    margin-bottom: 30px;
+}
+
+/* Project title */
+#timeline-container h2 {
+    text-align: center;
+    color: #52ab98;
+    margin-bottom: 20px;
+}
+
+/* Timeline card styling */
+.timeline-card {
+    background-color: #ffffff;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    border-left: 6px solid #52ab98;
+    max-width: 800px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.timeline-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.timeline-card h3 {
+    margin-top: 0;
+    color: #2b6777;
+    font-size: 1.25rem;
+}
+
+.timeline-card p {
+    margin: 6px 0;
+}
+
+.timeline-card strong {
+    color: #444;
+}
+
+/* Back link */
+a {
+    display: inline-block;
+    margin-top: 40px;
+    text-decoration: none;
+    font-weight: bold;
+    color: #52ab98;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #2b6777;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .timeline-card {
+        padding: 15px;
+        margin: 15px;
+    }
+
+    .timeline-card h3 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Spinner styling */
+.spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #52ab98;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 30px auto;
+    display: none; /* hidden by default */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+
+.caution-box {
+    background-color: #fff3cd;
+    color: #856404;
+    border-left: 5px solid #ffc107;
+    padding: 20px;
+    margin: 30px auto;
+    border-radius: 8px;
+    max-width: 800px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.caution-box h2 {
+    margin-top: 0;
+    color: #8a6d3b;
+}
+
+
+

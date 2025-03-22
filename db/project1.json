@@ -1,23 +1,39 @@
 {
-  "ProjectName": "dawdwad",
-  "ProjectDescription": "dawdawd",
-  "ProjectDuration": "dawdawd",
+  "ProjectDescription": "Develop a smart IoT-based parking management solution to optimize parking availability, monitor space usage, and provide real-time status updates to users.",
+  "ProjectDuration": "3 months",
+  "ProjectName": "Smart Parking Management System",
   "members": [
     {
-      "MemberRole": "dwadawd",
-      "TrainingTime": "dwadwad",
-      "TrainingDescription": "",
-      "ImplementationTime": "wdadwad",
-      "ImplementationDescription": "wdadwad",
-      "Other Remarks": ""
+      "MemberRole": "Frontend Developer",
+      "TrainingTime": "5 days",
+      "TrainingDescription": "Training on React.js and Tailwind CSS to build responsive UI components.",
+      "ImplementationTime": "25 days",
+      "ImplementationDescription": "Developed user interface for parking dashboard, availability map, and booking screens using React.",
+      "Other Remarks": "Focused on accessibility and responsive design for mobile users."
     },
     {
-      "MemberRole": "dwadawd",
-      "TrainingTime": "dwadwad",
-      "TrainingDescription": "",
-      "ImplementationTime": "wdadwad",
-      "ImplementationDescription": "wdadwad",
-      "Other Remarks": ""
+      "MemberRole": "Backend Developer",
+      "TrainingTime": "3 days",
+      "TrainingDescription": "Refresher on RESTful API development and FastAPI integration with PostgreSQL.",
+      "ImplementationTime": "30 days",
+      "ImplementationDescription": "Built REST APIs for space tracking, user registration, and real-time occupancy updates using FastAPI.",
+      "Other Remarks": "Implemented caching for high-traffic endpoints."
+    },
+    {
+      "MemberRole": "IoT Specialist",
+      "TrainingTime": "7 days",
+      "TrainingDescription": "Training on Raspberry Pi sensors and MQTT protocol for real-time parking detection.",
+      "ImplementationTime": "20 days",
+      "ImplementationDescription": "Installed and configured IR sensors in parking lots, integrated with Raspberry Pi to send MQTT messages to backend.",
+      "Other Remarks": "Conducted multiple field tests to ensure accuracy under varying lighting conditions."
+    },
+    {
+      "MemberRole": "ML Engineer",
+      "TrainingTime": "10 days",
+      "TrainingDescription": "Trained on TensorFlow Lite for deploying models on edge devices.",
+      "ImplementationTime": "28 days",
+      "ImplementationDescription": "Developed and deployed a model to predict space occupancy trends using historical data.",
+      "Other Remarks": "Provided visualization insights to help optimize lot layouts based on predicted usage."
     }
   ]
 }
