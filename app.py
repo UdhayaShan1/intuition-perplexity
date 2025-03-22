@@ -17,51 +17,64 @@ openai.api_key = ""
 with open("api_key/api.txt", "r") as key_file:
     openai.api_key = key_file.read().strip()
 
+from employees_database import get_all_employees
+
 @app.route('/ai_generate_timeline')
 def ai_generate_timeline():
     project_name = request.args.get("project_name")
     if not project_name:
         return jsonify({"error": "Missing project name"}), 400
-    
-    project_name = request.args.get("project_name")
-    project = load_project_from_db(project_name)
-    
-    print("project is ", project)
- 
-    prompt = f"""
-    You are a project planner assistant. ONLY return a JSON response. Do not include any explanation or additional text.
 
-    Here's the project data:
+    project = load_project_from_db(project_name)
+    employees = get_all_employees()
+
+    print("project is", project)
+    print("employees found:", len(employees))
+
+    prompt = f"""
+    You are a project planning AI assistant.
+
+    Given:
+    - A project with members and task data
+    - A list of employees with name, department, years_with_company, general_interests, skills, and personalities
+
+    Your job is to:
+    1. Generate a structured project timeline
+    2. For each project member, recommend the best top 3 employees from the list who fit the task
+    3. Include a short explanation why each employee fits based on their fields, skills, and traits
+
+    Here is the project:
     {json.dumps(project, indent=2)}
 
-    Generate a structured timeline that includes:
+    Here is the employee pool:
+    {json.dumps(employees, indent=2)}
 
-    - A short **summary of each member's contribution** (`summary`)
-    - A **clear task description** (`task_description`) — fill in if missing
-    - Estimated `training_time_days` and `implementation_time_days`
-    - Calculated `total_duration_days` (sum of training + implementation)
-    - A realistic `start_date` and `end_date` based on project duration and number of members (assume today is the project start date)
-
-    Return only valid JSON in this format:
+    ✅ Return only valid JSON in this format:
     {{
-    "project": "{project_name}",
-    "generalTask": "...",
-    "timeline": [
+      "project": "{project_name}",
+      "generalTask": "...",
+      "timeline": [
         {{
-        "member": 1,
-        "role": "...",
-        "summary": "...",
-        "task_description": "...",
-        "training_time_days": ...,
-        "implementation_time_days": ...,
-        "total_duration_days": ...,
-        "start_date": "...",
-        "end_date": "..."
+          "member": 1,
+          "role": "...",
+          "summary": "...",
+          "task_description": "...",
+          "training_time_days": ...,
+          "implementation_time_days": ...,
+          "total_duration_days": ...,
+          "start_date": "...",
+          "end_date": "...",
+          "recommendations": [
+            {{
+              "name": "...",
+              "reason": "..."
+            }}
+          ]
         }}
-    ]
+      ],
+      "caution": "..."
     }}
     """
-
 
     response = openai.ChatCompletion.create(
         model="gpt-4",
@@ -70,16 +83,13 @@ def ai_generate_timeline():
     )
 
     content = response['choices'][0]['message']['content']
-    print("content is ", content)
+    print("content is", content)
 
     try:
         timeline_json = json.loads(content)
     except json.JSONDecodeError:
-        return jsonify({"error": "OpenAI response was not valid JSON", "raw": content}), 500
-    
-    print("Response")
-    print(content)
-    # ✅ Save to file
+        return jsonify({"error": "OpenAI returned invalid JSON", "raw": content}), 500
+
     save_timeline_to_db(project_name, timeline_json)
     return jsonify(timeline_json)
 

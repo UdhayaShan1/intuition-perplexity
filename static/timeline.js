@@ -24,15 +24,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function renderAITimeline(data) {
     const container = document.getElementById("timeline-container");
-    container.innerHTML = ""; // Clear old data if reloading
+    container.innerHTML = "";
 
     const title = document.createElement('h2');
     title.innerText = `📌 Project: ${data.generalTask}`;
     container.appendChild(title);
 
-    data.timeline.forEach((item, index) => {
+    data.timeline.forEach((item) => {
         const card = document.createElement('div');
         card.className = 'timeline-card';
+
+        let recHTML = "";
+        if (item.recommendations && item.recommendations.length > 0) {
+            recHTML = "<p><strong>Top 3 Employee Matches:</strong></p><ul>";
+            item.recommendations.forEach(rec => {
+                recHTML += `<li><strong>${rec.name}</strong>: ${rec.reason}</li>`;
+            });
+            recHTML += "</ul>";
+        }
 
         card.innerHTML = `
             <h3>👤 Member ${item.member} - ${item.role}</h3>
@@ -43,6 +52,7 @@ function renderAITimeline(data) {
             <p><strong>🧮 Total Duration:</strong> ${item.total_duration_days} day(s)</p>
             <p><strong>📅 Start Date:</strong> ${item.start_date}</p>
             <p><strong>📅 End Date:</strong> ${item.end_date}</p>
+            ${recHTML}
         `;
 
         container.appendChild(card);
@@ -57,5 +67,4 @@ function renderAITimeline(data) {
         `;
         container.appendChild(cautionBox);
     }
-    
 }
