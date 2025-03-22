@@ -1,0 +1,28 @@
+{
+  "project": "project_1742644536310_29",
+  "generalTask": "adwda",
+  "timeline": [
+    {
+      "member": 1,
+      "role": "ML Engineer",
+      "summary": "ML Engineer will be trained on Logistic and then implement it",
+      "task_description": "Learn Logistic and implement it",
+      "training_time_days": 10,
+      "implementation_time_days": 20,
+      "total_duration_days": 30,
+      "start_date": "2022-03-01",
+      "end_date": "2022-03-31"
+    },
+    {
+      "member": 2,
+      "role": "Dev Ops",
+      "summary": "Dev Ops will be trained on CI/CD and then implement it",
+      "task_description": "Learn CI/CD and implement it",
+      "training_time_days": 10,
+      "implementation_time_days": 20,
+      "total_duration_days": 30,
+      "start_date": "2022-04-01",
+      "end_date": "2022-04-30"
+    }
+  ]
+}

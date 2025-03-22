@@ -1,0 +1,17 @@
+{
+  "project": "project1",
+  "generalTask": "No task assigned",
+  "timeline": [
+    {
+      "member": 1,
+      "role": "No role assigned",
+      "summary": "No contribution",
+      "task_description": "No task description",
+      "training_time_days": 0,
+      "implementation_time_days": 0,
+      "total_duration_days": 0,
+      "start_date": "No start date",
+      "end_date": "No end date"
+    }
+  ]
+}

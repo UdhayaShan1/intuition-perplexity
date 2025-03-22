@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Timeline</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Project Timeline</title>
+        <link
+          rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}"
+        />
+      </head>
 <body>
-    <div class="container mt-5">
-        <h1 class="mb-4">Timeline Page</h1>
-        <a href="javascript:history.back()" class="btn btn-secondary mb-4">Back to Project</a>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <h1>📋 Project Timeline</h1>
+    <div id="loading-spinner" class="spinner"></div>
+    <div id="timeline-container"></div>
+
+    <a href="/project">← Back to Project</a>
+
+    <script src="{{ url_for('static', filename='timeline.js') }}"></script>
 </body>
 </html>
