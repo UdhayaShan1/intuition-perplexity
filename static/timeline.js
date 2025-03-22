@@ -8,10 +8,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const urlParams = new URLSearchParams(window.location.search);
     projectId = urlParams.get('id') || localStorage.getItem("currentProjectId");
+    const mode = urlParams.get('mode') || 'generate'; // Default to generate if not specified
 
-    console.log("using chatbot for project: ", projectId);
+    console.log(`Using project: ${projectId}, mode: ${mode}`);
 
-    fetch(`/ai_generate_timeline?project_name=${projectId}`)
+    // Determine which endpoint to call based on mode
+    const endpoint = mode === 'view' ? 
+        `/get_timeline?project_name=${projectId}` : 
+        `/ai_generate_timeline?project_name=${projectId}`;
+
+    fetch(endpoint)
         .then(res => res.json())
         .then(data => {
             spinner.style.display = "none"; // Hide spinner
@@ -19,11 +25,10 @@ document.addEventListener("DOMContentLoaded", () => {
             renderGanttChart(data);
             renderAITimeline(data);
             checkAllTasksAssigned(); // Check initially in case we already have assignments
-
         })
         .catch(err => {
             spinner.style.display = "none"; // Hide on error too
-            document.getElementById("timeline-container").innerText = "Error loading AI-generated timeline.";
+            document.getElementById("timeline-container").innerText = "Error loading timeline.";
             console.error(err);
         });
 });

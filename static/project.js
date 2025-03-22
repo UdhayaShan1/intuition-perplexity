@@ -52,6 +52,9 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Also fetch assigned employees for this project
             fetchAssignedEmployees(projectId);
+            
+            // Check if timeline exists for this project
+            checkTimelineExists(projectId);
         } else {
             // If no ID was found, create a new project
             projectId = `project_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -75,12 +78,12 @@ document.addEventListener("DOMContentLoaded", () => {
         saveProject()
             .then(() => {
                 // Only navigate after save is complete
-                window.location.href = `/timeline?id=${encodeURIComponent(projectId)}`;
+                window.location.href = `/timeline?id=${encodeURIComponent(projectId)}&mode=generate`;
             })
             .catch(err => {
                 console.error("Error saving before timeline:", err);
                 if (confirm("Failed to save project. Continue to timeline anyway?")) {
-                    window.location.href = `/timeline?id=${encodeURIComponent(projectId)}`;
+                    window.location.href = `/timeline?id=${encodeURIComponent(projectId)}&mode=generate`;
                 }
             });
     });
@@ -444,4 +447,41 @@ function logMembersStatus() {
     console.log(`DOM members: ${document.querySelectorAll('.member-container').length}`);
     console.log(`Project data members: ${projectData.members.length}`);
     console.log("--------------------------------");
+}
+
+// Add this new function to check if a timeline exists for the project
+function checkTimelineExists(projectId) {
+    fetch(`/check_timeline_exists?project_name=${encodeURIComponent(projectId)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                // Timeline exists, add a button to view it
+                addViewTimelineButton();
+            }
+        })
+        .catch(error => {
+            console.error("Error checking timeline existence:", error);
+        });
+}
+
+// Function to add the "View Timeline" button
+function addViewTimelineButton() {
+    // Check if Generate Timeline button exists
+    const generateBtn = document.getElementById("gentimeline");
+    
+    if (generateBtn) {
+        // Create the "View Timeline" button
+        const viewTimelineBtn = document.createElement("button");
+        viewTimelineBtn.id = "view-timeline";
+        viewTimelineBtn.className = "btn btn-info mb-4 ml-2";
+        viewTimelineBtn.textContent = "View Existing Timeline";
+        
+        // Insert after the generate button
+        generateBtn.parentNode.insertBefore(viewTimelineBtn, generateBtn.nextSibling);
+        
+        // Add event listener to the new button
+        viewTimelineBtn.addEventListener("click", () => {
+            window.location.href = `/timeline?id=${encodeURIComponent(projectId)}&mode=view`;
+        });
+    }
 }

@@ -139,6 +139,59 @@ def ai_generate_timeline():
             "details": str(e)
         }), 500
 
+@app.route('/get_timeline')
+def get_timeline():
+    try:
+        project_name = request.args.get("project_name")
+        if not project_name:
+            return jsonify({"error": "Missing project name"}), 400
+            
+        from database import load_timeline_from_db
+        timeline_data = load_timeline_from_db(project_name)
+        
+        if timeline_data is None:
+            return jsonify({"error": "Timeline not found"}), 404
+            
+        # Add employee data to the response just like in ai_generate_timeline
+        employees = get_all_employees()
+        timeline_data["consideredEmployees"] = employees
+        
+        return jsonify(timeline_data)
+        
+    except Exception as e:
+        import traceback
+        print(f"Error retrieving timeline: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({
+            "error": "Internal server error", 
+            "details": str(e)
+        }), 500
+
+@app.route('/check_timeline_exists')
+def check_timeline_exists():
+    try:
+        project_name = request.args.get("project_name")
+        if not project_name:
+            return jsonify({"error": "Missing project name"}), 400
+            
+        # Check if a timeline exists for this project in your database
+        from database import load_timeline_from_db
+        timeline_data = load_timeline_from_db(project_name)
+        
+        return jsonify({
+            "exists": timeline_data is not None
+        })
+        
+    except Exception as e:
+        import traceback
+        print(f"Error checking timeline existence: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({
+            "error": "Internal server error", 
+            "details": str(e),
+            "exists": False
+        }), 500
+
 @app.route('/')
 def home():
     projects = get_all_projects()
