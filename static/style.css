@@ -688,6 +688,63 @@ a:hover {
     background-color: #2c8a44;
 }
 
+.assignment-message {
+    padding: 10px;
+    margin-top: 15px;
+    border-radius: 5px;
+}
+
+.success-message {
+    background-color: rgba(76, 175, 80, 0.2);
+    border-left: 4px solid #4CAF50;
+    padding: 10px;
+}
+
+.assigned {
+    background-color: #4CAF50 !important;
+    color: white !important;
+    cursor: default !important;
+}
+
+.assignments-section {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #f1f8e9;
+    border-radius: 5px;
+    border-left: 4px solid #4CAF50;
+}
+
+.assignment-list {
+    margin-top: 5px;
+    padding-left: 25px;
+}
+
+/* Add to style.css */
+.submit-plan-container {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+.submit-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
 
 
 

@@ -19,7 +19,8 @@ def init_db():
             name TEXT,
             department TEXT,
             years_with_company INTEGER,
-            employee_data TEXT
+            employee_data TEXT,
+            project_assigned TEXT  -- New column to track project ID
         )
     ''')
 
@@ -47,13 +48,14 @@ def save_employee_to_db(employee_data):
         "personalities": employee_data["personalities"]
     })
     c.execute('''
-        INSERT INTO employees (name, department, years_with_company, employee_data)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO employees (name, department, years_with_company, employee_data, project_assigned)
+        VALUES (?, ?, ?, ?, ?)
     ''', (
         employee_data["name"],
         employee_data["department"],
         employee_data["years_with_company"],
-        employee_json
+        employee_json,
+        employee_data.get("project_assigned")  # optional, default is None
     ))
     conn.commit()
     conn.close()
@@ -62,7 +64,7 @@ def save_employee_to_db(employee_data):
 def get_all_employees():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute('SELECT id, name, department, years_with_company, employee_data FROM employees')
+    c.execute('SELECT id, name, department, years_with_company, employee_data, project_assigned FROM employees')
     rows = c.fetchall()
     conn.close()
 
@@ -74,10 +76,23 @@ def get_all_employees():
             "name": row[1],
             "department": row[2],
             "years_with_company": row[3],
-            **emp_data
+            "project_assigned": row[5],
+            **json.loads(row[4])
         })
+
     return employees
 
+
+def assign_employee_to_project(employee_name, project_id):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''
+        UPDATE employees
+        SET project_assigned = ?
+        WHERE name = ?
+    ''', (project_id, employee_name))
+    conn.commit()
+    conn.close()
 
 def populate_employees_with_mock_data():
     mock_employees = [

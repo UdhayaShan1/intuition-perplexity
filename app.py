@@ -153,6 +153,39 @@ def save_project():
         print(traceback.format_exc())
         return jsonify({"status": "error", "message": str(e)}), 500
 
+from employees_database import assign_employee_to_project
+
+@app.route('/submit_plan', methods=['POST'])
+def submit_plan():
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"status": "error", "message": "No data provided"}), 400
+            
+        project_id = data.get('projectId')
+        assignments = data.get('assignments')
+        
+        if not project_id or not assignments:
+            return jsonify({"status": "error", "message": "Missing required data"}), 400
+            
+        # Process each assignment
+        for assignment in assignments:
+            employee_name = assignment.get('employeeName')
+            
+            # Call your database function to assign employee to project
+            assign_employee_to_project(employee_name, project_id)
+            
+        return jsonify({
+            "status": "success",
+            "message": "Plan submitted successfully",
+            "projectId": project_id,
+            "assignmentsCount": len(assignments)
+        })
+        
+    except Exception as e:
+        print(f"Error in submit_plan: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
 def open_browser():
     webbrowser.open_new('http://127.0.0.1:5000/')
 
