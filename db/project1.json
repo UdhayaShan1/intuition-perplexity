@@ -1,17 +1,23 @@
 {
-  "generalTask": "dawdwad",
+  "ProjectName": "dawdwad",
+  "ProjectDescription": "dawdawd",
+  "ProjectDuration": "dawdawd",
   "members": [
     {
-      "task": "dwadawd",
-      "implementation": "wdadwad",
-      "training": "",
-      "remarks": ""
+      "MemberRole": "dwadawd",
+      "TrainingTime": "dwadwad",
+      "TrainingDescription": "",
+      "ImplementationTime": "wdadwad",
+      "ImplementationDescription": "wdadwad",
+      "Other Remarks": ""
     },
     {
-      "task": "",
-      "implementation": "dwadwad",
-      "training": "",
-      "remarks": ""
+      "MemberRole": "dwadawd",
+      "TrainingTime": "dwadwad",
+      "TrainingDescription": "",
+      "ImplementationTime": "wdadwad",
+      "ImplementationDescription": "wdadwad",
+      "Other Remarks": ""
     }
   ]
 }

@@ -28,8 +28,12 @@ def load_project():
             data = json.load(f)
         print("Retrieved")
         return jsonify(data)
-    return jsonify({"members": [], "generalTask": ""})  # new project
-
+    return jsonify({
+        "ProjectName": "",
+        "ProjectDescription": "",
+        "ProjectDuration": "",
+        "members": []
+    })  # new project
 
 @app.route('/save_project', methods=['POST'])
 def save_project():
@@ -42,7 +46,6 @@ def save_project():
     with open(filepath, 'w') as f:
         json.dump(data, f, indent=2)
     return jsonify({"status": "success"})
-
 
 if __name__ == '__main__':
     app.run(debug=True)
