@@ -3,31 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <title>Project Page</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>This is the Project Page</h1>
-    <a href="{{ url_for('home') }}">Back to Home</a>
+    <div class="container mt-5">
+        <h1 class="mb-4">Project Page</h1>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary mb-4">Back to Home</a>
 
-    <!-- General Task Box -->
-    <div class="general-task">
-        <label for="project-name">Project Name:</label>
-        <input type="text" id="project-name" class="general-task-box" placeholder="Enter the project name...">
-        
-        <label for="project-description">Project Description:</label>
-        <textarea id="project-description" class="general-task-box" placeholder="Describe the project..."></textarea>
-        
-        <label for="project-duration">Project Duration:</label>
-        <input type="text" id="project-duration" class="general-task-box" placeholder="Enter the project duration...">
+        <!-- General Task Box -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="project-name">Project Name:</label>
+                    <input type="text" id="project-name" class="form-control" placeholder="Enter the project name...">
+                </div>
+                <div class="form-group">
+                    <label for="project-description">Project Description:</label>
+                    <textarea id="project-description" class="form-control" placeholder="Describe the project..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="project-duration">Project Duration:</label>
+                    <input type="text" id="project-duration" class="form-control" placeholder="Enter the project duration...">
+                </div>
+            </div>
+        </div>
+
+        <div id="members"></div>
+
+        <button class="btn btn-success mb-4" onclick="addMember()">Add Anonymous Member</button>
+        <button id="gentimeline" class="btn btn-primary mb-4">Generate Timeline</button>
     </div>
-
-    <div id="members"></div>
-
-    <button class="add-member-btn" onclick="addMember()">Add Anonymous Member</button>
-    <button id="gentimeline" class="gentimeline">Generate Timeline</button>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{{ url_for('static', filename='project.js') }}"></script>
-
-    <script>
-    </script>
 </body>
 </html>

@@ -3,11 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>Welcome to the Home Page</h1>
+    <div class="container mt-5">
+        <header class="mb-4">
+            <h1>Project Management Dashboard</h1>
+        </header>
 
-    <a href="{{ url_for('project') }}" class="create-btn">Create New Project</a>
+        <div class="jumbotron">
+            <h2 class="display-4">Welcome!</h2>
+            <p class="lead">Start managing your team projects efficiently.</p>
+            <a href="{{ url_for('project') }}" class="btn btn-primary btn-lg">Create New Project</a>
+        </div>
+
+        <footer class="mt-5">
+            <p>&copy; 2025 AI Project Manager</p>
+        </footer>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

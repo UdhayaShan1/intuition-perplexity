@@ -128,25 +128,6 @@
     background-color: #218838;
 }
 
-
-/* Home Page Button */
-.create-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    padding: 12px 20px;
-    background-color: #007bff;
-    color: white;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-}
-
-.create-btn:hover {
-    background-color: #0056b3;
-}
-
 /* General Task */
 .general-task {
     margin-bottom: 20px;
