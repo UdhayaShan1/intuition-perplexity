@@ -46,18 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log(`Loading existing project with ID: ${projectId}`);
             
             // Load from DB
-            fetch(`/load_project?project_name=${encodeURIComponent(projectId)}`)
-                .then(res => res.json())
-                .then(data => {
-                    console.log("Loaded data:", data);
-                    projectData = data;
-                    document.getElementById("project-name").value = data.ProjectName || "";
-                    document.getElementById("project-description").value = data.ProjectDescription || "";
-                    document.getElementById("project-duration").value = data.ProjectDuration || "";
-                    if (data.members && data.members.length > 0) {
-                        data.members.forEach(member => addMember(member));
-                    }
-                });
+            loadProjectData(projectId);
         } else {
             // If no ID was found, create a new project
             projectId = `project_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
@@ -73,8 +62,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("gentimeline").addEventListener("click", () => {
-        saveProject();  // Save before navigating
-        window.location.href = `/timeline?id=${encodeURIComponent(projectId)}`;
+        saveProject()
+            .then(() => {
+                // Only navigate after save is complete
+                window.location.href = `/timeline?id=${encodeURIComponent(projectId)}`;
+            })
+            .catch(err => {
+                console.error("Error saving before timeline:", err);
+                if (confirm("Failed to save project. Continue to timeline anyway?")) {
+                    window.location.href = `/timeline?id=${encodeURIComponent(projectId)}`;
+                }
+            });
     });
 
     // Add input event listeners to the project fields
@@ -101,7 +99,48 @@ document.addEventListener("DOMContentLoaded", () => {
             e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
         }
     });
+
+    // Add refresh button handler if it exists
+    const refreshButton = document.getElementById("refresh-project");
+    if (refreshButton) {
+        refreshButton.addEventListener("click", () => {
+            if (hasUnsavedChanges) {
+                if (confirm("You have unsaved changes. Refreshing will discard these changes. Continue?")) {
+                    loadProjectData(projectId);
+                    hasUnsavedChanges = false;
+                }
+            } else {
+                loadProjectData(projectId);
+            }
+        });
+    }
 });
+
+function loadProjectData(id) {
+    console.log(`Loading project data for ID: ${id}`);
+    
+    // Clear current data
+    document.getElementById("members").innerHTML = "";
+    
+    // Load fresh data from DB
+    return fetch(`/load_project?project_name=${encodeURIComponent(id)}`)
+        .then(res => res.json())
+        .then(data => {
+            console.log("Loaded data:", data);
+            projectData = data;
+            document.getElementById("project-name").value = data.ProjectName || "";
+            document.getElementById("project-description").value = data.ProjectDescription || "";
+            document.getElementById("project-duration").value = data.ProjectDuration || "";
+            if (data.members && data.members.length > 0) {
+                data.members.forEach(member => addMember(member));
+            }
+            console.log(`Loaded ${data.members ? data.members.length : 0} members from database`);
+            return data;
+        })
+        .catch(err => {
+            console.error("Error loading project data:", err);
+        });
+}
 
 function addMember(data = {}) {
     console.log("Adding member:", data);
@@ -148,13 +187,15 @@ function addMember(data = {}) {
     note.placeholder = 'Other Remarks';
     note.value = data["Other Remarks"] || '';
 
+    // In your addMember function, update the removeButton event listener:
     const removeButton = document.createElement('button');
     removeButton.className = 'btn btn-danger mt-2';
     removeButton.innerText = 'Remove';
     removeButton.addEventListener('click', () => {
-        container.remove();
-        updateProjectData();
-        saveProject(); // Save the project data after removing a member
+        if (confirm("Are you sure you want to remove this member?")) {
+            console.log("Removing member...");
+            removeMember(container);
+        }
     });
 
     // Listen for edits
@@ -187,10 +228,19 @@ function scheduleAutoSave() {
 }
 
 function updateProjectData() {
-    const containers = document.querySelectorAll('.member-container');
+    console.log("Updating project data...");
+    
+    // First clear members array
     projectData.members = [];
-    containers.forEach(container => {
+    
+    // Get all current member containers in the DOM
+    const containers = document.querySelectorAll('.member-container');
+    console.log(`Found ${containers.length} member containers in DOM`);
+    
+    // Rebuild members array from DOM elements
+    containers.forEach((container, index) => {
         const inputs = container.querySelectorAll('input, textarea');
+        
         projectData.members.push({
             MemberRole: inputs[0].value,
             TrainingTime: inputs[1].value,
@@ -200,9 +250,13 @@ function updateProjectData() {
             "Other Remarks": inputs[5].value
         });
     });
+    
+    // Update project metadata
     projectData.ProjectName = document.getElementById("project-name").value;
     projectData.ProjectDescription = document.getElementById("project-description").value;
     projectData.ProjectDuration = document.getElementById("project-duration").value;
+    
+    console.log(`Project data updated with ${projectData.members.length} members`);
 }
 
 function saveProject() {
@@ -212,21 +266,88 @@ function saveProject() {
     console.log("Project data updated:", projectData);
     console.log(`Saving project with ID: ${projectId}`);
     
-    console.log(`Sending POST request to /save_project?project_name=${encodeURIComponent(projectId)}`);
+    // Return a Promise for better control flow
+    return new Promise((resolve, reject) => {
+        // Always save using the project ID
+        console.log(`Sending POST request to /save_project?project_name=${encodeURIComponent(projectId)}`);
+        fetch(`/save_project?project_name=${encodeURIComponent(projectId)}`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(projectData)
+        })
+        .then(res => {
+            console.log("Response received:", res.status);
+            if (!res.ok) {
+                throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+            }
+            return res.json();
+        })
+        .then(response => {
+            console.log("Saved:", response.status);
+            hasUnsavedChanges = false; // Reset the unsaved changes flag
+            resolve(response); // Resolve the promise
+        })
+        .catch(err => {
+            console.error("Save failed:", err);
+            reject(err); // Reject the promise with the error
+        });
+    });
+}
+
+function removeMember(container) {
+    // Remove the container from the DOM
+    container.remove();
+    
+    console.log("Member container removed from DOM");
+    
+    // Update project data to reflect removal
+    const prevMemberCount = projectData.members.length;
+    updateProjectData();
+    const newMemberCount = projectData.members.length;
+    
+    console.log(`Members before removal: ${prevMemberCount}, after removal: ${newMemberCount}`);
+    
+    // Force save with verification
+    forceSaveAfterRemoval();
+}
+
+function forceSaveAfterRemoval() {
+    console.log("Force saving after member removal...");
+    updateProjectData(); // Ensure data is up to date
+    
+    // Direct API call with explicit content type and careful error handling
     fetch(`/save_project?project_name=${encodeURIComponent(projectId)}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
         body: JSON.stringify(projectData)
     })
     .then(res => {
-        console.log("Response received:", res.status);
+        if (!res.ok) {
+            throw new Error(`Server returned ${res.status}: ${res.statusText}`);
+        }
+        console.log(`Response status: ${res.status}`);
         return res.json();
     })
-    .then(response => {
-        console.log("Saved:", response.status);
-        hasUnsavedChanges = false; // Reset the unsaved changes flag
+    .then(data => {
+        console.log("Save after removal successful:", data);
+        hasUnsavedChanges = false;
     })
     .catch(err => {
-        console.error("Save failed:", err);
+        console.error("Error saving after removal:", err);
+        alert("Failed to save after removing member. Please try saving manually.");
     });
+}
+
+// Debug helper function
+function logMembersStatus() {
+    console.log("-------- MEMBERS STATUS --------");
+    console.log(`DOM members: ${document.querySelectorAll('.member-container').length}`);
+    console.log(`Project data members: ${projectData.members.length}`);
+    console.log("--------------------------------");
 }

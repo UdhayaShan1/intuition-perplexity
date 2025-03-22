@@ -116,21 +116,31 @@ def load_project():
 
 @app.route('/save_project', methods=['POST'])
 def save_project():
-    print("save_project function called")
+    print("\n--- SAVE PROJECT FUNCTION CALLED ---")
     project_name = request.args.get("project_name")
-    print(f"Project name: {project_name}")
+    print(f"Project name/ID: {project_name}")
     
     if not project_name:
-        print("Missing project name")
+        print("ERROR: Missing project name/ID")
         return jsonify({"status": "error", "message": "Missing project name"}), 400
 
-    data = request.get_json()
-    print(f"Received data: {data}")
-    
-    save_project_to_db(project_name, data)
-    print(f"Project {project_name} saved to database")
-    
-    return jsonify({"status": "success"})
+    try:
+        data = request.get_json()
+        if data is None:
+            print("ERROR: Invalid JSON data received")
+            return jsonify({"status": "error", "message": "Invalid JSON data"}), 400
+        
+        print(f"Received data: Project Name={data.get('ProjectName')}, Members={len(data.get('members', []))}")
+        
+        save_project_to_db(project_name, data)
+        print(f"Project {project_name} saved to database successfully")
+        
+        return jsonify({"status": "success"})
+    except Exception as e:
+        import traceback
+        print(f"ERROR during save: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 def open_browser():
     webbrowser.open_new('http://127.0.0.1:5000/')

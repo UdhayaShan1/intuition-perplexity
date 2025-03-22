@@ -1,0 +1,17 @@
+{
+  "project": "project_1742644646944_431",
+  "generalTask": "Check",
+  "timeline": [
+    {
+      "member": 1,
+      "role": "Project Manager",
+      "summary": "Oversee the entire project, ensure tasks are completed on time",
+      "task_description": "Manage project timeline and resources",
+      "training_time_days": 5,
+      "implementation_time_days": 10,
+      "total_duration_days": 15,
+      "start_date": "2022-04-01",
+      "end_date": "2022-04-16"
+    }
+  ]
+}
