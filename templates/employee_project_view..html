@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Details</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container mt-5">
+        <header class="mb-4">
+            <h1>Project Details</h1>
+            <div class="role-badge employee">Employee View</div>
+        </header>
+
+        <div class="project-unavailable">
+            <div class="icon">⏳</div>
+            <h3>Project Timeline Not Available</h3>
+            <p>The timeline for this project has not been created yet.</p>
+            <p>Please check back later or contact your project manager.</p>
+            <a href="/" class="btn btn-secondary mt-4">Back to Dashboard</a>
+        </div>
+
+        <footer class="mt-5">
+            <p>&copy; 2025 AI Project Manager</p>
+        </footer>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -2,15 +2,23 @@ let projectId = ""; // Store the current project ID
 const currentProject = localStorage.getItem("currentProject") || "project1";
 let taskAssignments = {}; // Store task assignments: {taskId: employeeName}
 
+// Add at the beginning after variable declarations
+let userRole = localStorage.getItem('userRole') || 'manager'; // Default to manager if not set
+
 document.addEventListener("DOMContentLoaded", () => {
+    // Refresh role from localStorage in case it changed
+    userRole = localStorage.getItem('userRole') || 'manager';
+    
     const spinner = document.getElementById("loading-spinner");
     spinner.style.display = "block"; // Show loading spinner
 
     const urlParams = new URLSearchParams(window.location.search);
     projectId = urlParams.get('id') || localStorage.getItem("currentProjectId");
-    const mode = urlParams.get('mode') || 'generate'; // Default to generate if not specified
+    
+    // For employees, always use view mode
+    const mode = userRole === 'employee' ? 'view' : (urlParams.get('mode') || 'generate');
 
-    console.log(`Using project: ${projectId}, mode: ${mode}`);
+    console.log(`Using project: ${projectId}, mode: ${mode}, role: ${userRole}`);
 
     // Determine which endpoint to call based on mode
     const endpoint = mode === 'view' ? 
@@ -25,7 +33,11 @@ document.addEventListener("DOMContentLoaded", () => {
             renderGanttChart(data);
             renderAITimeline(data);
             checkAllTasksAssigned(); // Check initially in case we already have assignments
-            saveTimelineToDatabase(data);
+            
+            // Only auto-save for managers
+            if (userRole === 'manager') {
+                saveTimelineToDatabase(data);
+            }
         })
         .catch(err => {
             console.log(err);
@@ -35,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 });
 
-
+// Modify the renderAITimeline function to handle role-based UI
 function renderAITimeline(data) {
     const container = document.getElementById("timeline-container");
     container.innerHTML = "";
@@ -50,110 +62,136 @@ function renderAITimeline(data) {
     const title = document.createElement('h2');
     title.innerText = `📌 Project: ${data.generalTask}`;
     container.appendChild(title);
+    
+    // Add a back button that respects user role
+    const backLink = document.createElement('a');
+    backLink.href = userRole === 'manager' ? `/project?id=${projectId}` : '/';
+    backLink.className = 'btn btn-secondary mb-4';
+    backLink.textContent = userRole === 'manager' ? 'Back to Project' : 'Back to Dashboard';
+    container.insertBefore(backLink, container.firstChild);
 
     data.timeline.forEach((item, index) => {
         const card = document.createElement('div');
         card.className = 'timeline-card';
         card.dataset.taskId = index; // Add task ID as data attribute
 
-        // Create editable fields with initial values from the data
+        // Determine if fields should be editable based on role
+        const isEditable = userRole === 'manager';
+
+        // Create form fields with initial values from the data
         const infoHTML = `
             <h3>👤 Member ${item.member} - ${item.role}</h3>
             <div class="editable-fields">
                 <div class="field-group">
                     <label><strong>📝 Summary:</strong></label>
-                    <input type="text" class="editable-field" data-field="summary" value="${item.summary || ''}" />
+                    ${isEditable ? 
+                      `<input type="text" class="editable-field" data-field="summary" value="${item.summary || ''}" />` : 
+                      `<div class="read-only-field">${item.summary || 'No summary provided'}</div>`}
                 </div>
                 <div class="field-group">
                     <label><strong>🧠 Task:</strong></label>
-                    <textarea class="editable-field" data-field="task_description">${item.task_description || ''}</textarea>
+                    ${isEditable ?
+                      `<textarea class="editable-field" data-field="task_description">${item.task_description || ''}</textarea>` :
+                      `<div class="read-only-field">${item.task_description || 'No task description provided'}</div>`}
                 </div>
                 <div class="field-group">
                     <label><strong>📘 Training Time:</strong></label>
                     <div class="input-with-unit">
-                        <input type="number" min="0" class="editable-field" data-field="training_time_days" value="${item.training_time_days || 0}" />
+                        ${isEditable ?
+                          `<input type="number" min="0" class="editable-field" data-field="training_time_days" value="${item.training_time_days || 0}" />` :
+                          `<div class="read-only-field">${item.training_time_days || 0}</div>`}
                         <span>day(s)</span>
                     </div>
                 </div>
                 <div class="field-group">
                     <label><strong>💻 Implementation Time:</strong></label>
                     <div class="input-with-unit">
-                        <input type="number" min="0" class="editable-field" data-field="implementation_time_days" value="${item.implementation_time_days || 0}" />
+                        ${isEditable ?
+                          `<input type="number" min="0" class="editable-field" data-field="implementation_time_days" value="${item.implementation_time_days || 0}" />` :
+                          `<div class="read-only-field">${item.implementation_time_days || 0}</div>`}
                         <span>day(s)</span>
                     </div>
                 </div>
                 <div class="field-group">
                     <label><strong>📅 Start Date:</strong></label>
-                    <input type="date" class="editable-field" data-field="start_date" value="${item.start_date || ''}" />
+                    ${isEditable ?
+                      `<input type="date" class="editable-field" data-field="start_date" value="${item.start_date || ''}" />` :
+                      `<div class="read-only-field">${item.start_date || 'Not specified'}</div>`}
                 </div>
                 <div class="field-group">
                     <label><strong>📅 End Date:</strong></label>
-                    <input type="date" class="editable-field" data-field="end_date" value="${item.end_date || ''}" disabled />
-                    <small class="help-text">End date is calculated automatically</small>
+                    <div class="read-only-field">${item.end_date || 'Not specified'}</div>
+                    ${isEditable ? `<small class="help-text">End date is calculated automatically</small>` : ''}
                 </div>
             </div>
-            <button class="btn update-chart-btn">Update Gantt Chart</button>
+            ${isEditable ? `<button class="btn update-chart-btn">Update Gantt Chart</button>` : ''}
         `;
 
         card.innerHTML = infoHTML;
         
-        // Add event listeners for real-time total calculation
-        const updateTotalDuration = (taskCard) => {
-            const trainingDays = parseInt(taskCard.querySelector('[data-field="training_time_days"]').value) || 0;
-            const implDays = parseInt(taskCard.querySelector('[data-field="implementation_time_days"]').value) || 0;
-            const totalDays = trainingDays + implDays;
-            
-            // Update end date based on start date and total duration
-            const startDateInput = taskCard.querySelector('[data-field="start_date"]');
-            const endDateInput = taskCard.querySelector('[data-field="end_date"]');
-            
-            if (startDateInput.value) {
-                const startDate = new Date(startDateInput.value);
-                const endDate = new Date(startDate);
-                endDate.setDate(startDate.getDate() + totalDays);
+        // Only add functionality for managers
+        if (userRole === 'manager') {
+            // Add event listeners for real-time total calculation
+            const updateTotalDuration = (taskCard) => {
+                const trainingDays = parseInt(taskCard.querySelector('[data-field="training_time_days"]').value) || 0;
+                const implDays = parseInt(taskCard.querySelector('[data-field="implementation_time_days"]').value) || 0;
+                const totalDays = trainingDays + implDays;
                 
-                // Format as YYYY-MM-DD for the input
-                const endDateStr = endDate.toISOString().split('T')[0];
-                endDateInput.value = endDateStr;
+                // Update end date based on start date and total duration
+                const startDateInput = taskCard.querySelector('[data-field="start_date"]');
+                const endDateInput = taskCard.querySelector('.read-only-field:last-child');
                 
-                // Update the data item
-                const taskId = parseInt(taskCard.dataset.taskId);
-                if (!isNaN(taskId) && data.timeline[taskId]) {
-                    data.timeline[taskId].end_date = endDateStr;
-                    data.timeline[taskId].total_duration_days = totalDays;
-                }
-            }
-        };
-        
-        // Add input event listeners to update the data model
-        card.querySelectorAll('.editable-field').forEach(input => {
-            input.addEventListener('change', function() {
-                const taskId = parseInt(card.dataset.taskId);
-                const fieldName = this.dataset.field;
-                
-                if (!isNaN(taskId) && data.timeline[taskId]) {
-                    // Update the data model with the new value
-                    data.timeline[taskId][fieldName] = this.value;
+                if (startDateInput.value) {
+                    const startDate = new Date(startDateInput.value);
+                    const endDate = new Date(startDate);
+                    endDate.setDate(startDate.getDate() + totalDays);
                     
-                    // If we changed training or implementation days, or start date, recalculate end date
-                    if (['training_time_days', 'implementation_time_days', 'start_date'].includes(fieldName)) {
-                        updateTotalDuration(card);
+                    // Format as YYYY-MM-DD for the input
+                    const endDateStr = endDate.toISOString().split('T')[0];
+                    endDateInput.textContent = endDateStr;
+                    
+                    // Update the data item
+                    const taskId = parseInt(taskCard.dataset.taskId);
+                    if (!isNaN(taskId) && data.timeline[taskId]) {
+                        data.timeline[taskId].end_date = endDateStr;
+                        data.timeline[taskId].total_duration_days = totalDays;
                     }
                 }
+            };
+            
+            // Add input event listeners to update the data model
+            card.querySelectorAll('.editable-field').forEach(input => {
+                input.addEventListener('change', function() {
+                    const taskId = parseInt(card.dataset.taskId);
+                    const fieldName = this.dataset.field;
+                    
+                    if (!isNaN(taskId) && data.timeline[taskId]) {
+                        // Update the data model with the new value
+                        data.timeline[taskId][fieldName] = this.value;
+                        
+                        // If we changed training or implementation days, or start date, recalculate end date
+                        if (['training_time_days', 'implementation_time_days', 'start_date'].includes(fieldName)) {
+                            updateTotalDuration(card);
+                        }
+                    }
+                });
             });
-        });
-        
-        // Add update button event listener
-        card.querySelector('.update-chart-btn').addEventListener('click', function(event) {
-            // Re-render the chart with updated data
-            renderGanttChart(data);
-            saveTimelineToDatabase(data, event.target);
-        });
+            
+            // Add update button event listener
+            const updateBtn = card.querySelector('.update-chart-btn');
+            if (updateBtn) {
+                updateBtn.addEventListener('click', function(event) {
+                    // Re-render the chart with updated data
+                    renderGanttChart(data);
+                    saveTimelineToDatabase(data, event.target);
+                });
+            }
+        }
 
         container.appendChild(card);
     });
 
-    // Add some CSS for the editable fields
+    // Add some CSS for the editable/read-only fields
     const style = document.createElement('style');
     style.textContent = `
         .editable-fields {
@@ -176,6 +214,15 @@ function renderAITimeline(data) {
             flex: 1;
             font-size: 14px;
         }
+        .read-only-field {
+            padding: 5px;
+            background-color: #f8f9fa;
+            border: 1px solid #f0f0f0;
+            border-radius: 4px;
+            flex: 1;
+            font-size: 14px;
+            color: #495057;
+        }
         textarea.editable-field {
             min-height: 60px;
             resize: vertical;
@@ -184,7 +231,8 @@ function renderAITimeline(data) {
             display: flex;
             align-items: center;
         }
-        .input-with-unit input {
+        .input-with-unit input, 
+        .input-with-unit .read-only-field {
             width: 60px;
             margin-right: 5px;
         }
@@ -223,18 +271,26 @@ function renderAITimeline(data) {
         container.appendChild(cautionBox);
     }
     
-    // Add submit plan button container (hidden initially)
-    const submitContainer = document.createElement('div');
-    submitContainer.id = 'submit-plan-container';
-    submitContainer.className = 'submit-plan-container';
-    submitContainer.style.display = 'none';
-    submitContainer.innerHTML = `
-        <button id="submit-plan-button" class="btn submit-btn">Submit Final Plan</button>
-    `;
-    container.appendChild(submitContainer);
-    
-    document.getElementById('submit-plan-button').addEventListener('click', submitPlan);
+    // Only show assignment features for managers
+    if (userRole === 'manager') {
+        // Add submit plan button container (hidden initially)
+        const submitContainer = document.createElement('div');
+        submitContainer.id = 'submit-plan-container';
+        submitContainer.className = 'submit-plan-container';
+        submitContainer.style.display = 'none';
+        submitContainer.innerHTML = `
+            <button id="submit-plan-button" class="btn submit-btn">Submit Final Plan</button>
+        `;
+        container.appendChild(submitContainer);
+        
+        document.getElementById('submit-plan-button').addEventListener('click', submitPlan);
+    }
 }
+
+// Modify the timeline.html template to add an info message for employees
+
+// Also update any other relevant functions to check user role before performing manager-only actions
+
 
 function showEmployeeDetails(name, taskId) {
     console.log("Looking for:", name);

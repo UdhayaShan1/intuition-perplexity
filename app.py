@@ -361,6 +361,24 @@ def generate_email():
     email_content = response.choices[0].message['content'].strip()
     return jsonify({"email": email_content})
 
+# Add this new route to handle employee project views
+@app.route('/employee_project_view')
+def employee_project_view():
+    project_id = request.args.get('id')
+    if not project_id:
+        return redirect(url_for('home'))
+    
+    # Check if timeline exists
+    from database import load_timeline_from_db
+    timeline_data = load_timeline_from_db(project_id)
+    
+    if timeline_data:
+        # Timeline exists, redirect to view it
+        return redirect(url_for('timeline', id=project_id, mode='view'))
+    
+    # No timeline exists, show the "not available" page
+    return render_template('employee_project_view.html', project_id=project_id)
+
 @app.route('/save_timeline', methods=['POST'])
 def save_timeline():
     try:

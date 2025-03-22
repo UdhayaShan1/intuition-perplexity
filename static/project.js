@@ -10,6 +10,26 @@ let autoSaveTimer;
 let hasUnsavedChanges = false;
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Check user role first - redirect employee if needed
+    const userRole = localStorage.getItem("userRole") || "manager";
+    
+    if (userRole === "employee") {
+        // Employees shouldn't access the project edit page directly
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectIdParam = urlParams.get('id');
+        
+        if (projectIdParam) {
+            // Redirect to timeline view if project ID is available
+            window.location.href = `/timeline?id=${projectIdParam}&mode=view`;
+            return;
+        } else {
+            // Redirect to home if no project ID
+            window.location.href = '/';
+            return;
+        }
+    }
+    
+    // Continue with normal page load for managers
     const urlParams = new URLSearchParams(window.location.search);
     
     // Check if this is a request for a new project

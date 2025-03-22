@@ -5,19 +5,61 @@
     <title>Project Management</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .role-toggle {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .role-toggle .btn-group .btn {
+            box-shadow: none;
+            border: 1px solid #dee2e6;
+        }
+        
+        .role-toggle .btn-group .active {
+            background-color: #2b6777;
+            color: white;
+            border-color: #2b6777;
+        }
+        
+        .role-info {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
         <header class="mb-4">
             <h1>Project Management Dashboard</h1>
+            
+            <!-- Role Toggle Section -->
+            <div class="role-toggle">
+                <h5>Select Your Role:</h5>
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-outline-primary active" id="manager-role">
+                        <input type="radio" name="role" value="manager" checked> Manager
+                    </label>
+                    <label class="btn btn-outline-primary" id="employee-role">
+                        <input type="radio" name="role" value="employee"> Employee
+                    </label>
+                </div>
+                <div class="role-info" id="role-description">
+                    <strong>Manager Mode:</strong> Create and manage projects, assign employees to tasks.
+                </div>
+            </div>
         </header>
 
         <div class="jumbotron">
             <h2 class="display-4">Welcome!</h2>
             <p class="lead">Start managing your team projects efficiently.</p>
-            <div class="btn-group mb-3">
-                <a href="{{ url_for('project', new='true') }}" class="btn btn-primary btn-lg mr-3">Create New Project</a>
-                <a href="{{ url_for('employee_registration') }}" class="btn btn-success btn-lg">Register as Employee</a>
+            <div class="btn-group mb-3" id="action-buttons">
+                <a href="{{ url_for('project', new='true') }}" class="btn btn-primary btn-lg mr-3 manager-only">Create New Project</a>
+                <a href="{{ url_for('employee_registration') }}" class="btn btn-success btn-lg employee-only">Register as Employee</a>
             </div>
         </div>
 
@@ -28,9 +70,9 @@
             </div>
             <div class="card-body">
                 {% if projects %}
-                <div class="list-group">
+                <div class="list-group" id="project-list">
                     {% for project in projects %}
-                    <a href="{{ url_for('project', id=project.id) }}" class="list-group-item list-group-item-action">
+                    <a href="{{ url_for('project', id=project.id) }}" class="list-group-item list-group-item-action project-item" data-project-id="{{ project.id }}">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">{{ project.name }}</h5>
                             {% if project.duration %}
@@ -56,5 +98,84 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initial setup based on default role (manager)
+            updateUIForRole('manager');
+            
+            // Save role preference to localStorage
+            localStorage.setItem('userRole', 'manager');
+            
+            // Role toggle event listeners
+            document.getElementById('manager-role').addEventListener('click', function() {
+                updateUIForRole('manager');
+                localStorage.setItem('userRole', 'manager');
+            });
+            
+            document.getElementById('employee-role').addEventListener('click', function() {
+                updateUIForRole('employee');
+                localStorage.setItem('userRole', 'employee');
+            });
+            
+            // Project click handler for employees
+            document.querySelectorAll('.project-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (localStorage.getItem('userRole') === 'employee') {
+                        e.preventDefault();
+                        const projectId = this.dataset.projectId;
+                        
+                        // First check if timeline exists
+                        fetch(`/check_timeline_exists?project_name=${projectId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.exists) {
+                                    // Redirect to timeline view
+                                    window.location.href = `/timeline?id=${projectId}&mode=view`;
+                                } else {
+                                    // Show notification that no timeline exists
+                                    alert('No timeline has been created for this project yet.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error checking timeline:', error);
+                                alert('Error checking project status');
+                            });
+                    }
+                    // Otherwise, let the default link behavior work (for managers)
+                });
+            });
+            
+            // Check for saved role and apply it
+            const savedRole = localStorage.getItem('userRole');
+            if (savedRole) {
+                if (savedRole === 'employee') {
+                    document.getElementById('employee-role').click();
+                } else {
+                    document.getElementById('manager-role').click();
+                }
+            }
+        });
+        
+        function updateUIForRole(role) {
+            const roleDescription = document.getElementById('role-description');
+            
+            // Show/hide elements based on role
+            if (role === 'manager') {
+                // Update description
+                roleDescription.innerHTML = '<strong>Manager Mode:</strong> Create and manage projects, assign employees to tasks.';
+                
+                // Show manager elements, hide employee elements
+                document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'inline-block');
+                document.querySelectorAll('.employee-only').forEach(el => el.style.display = 'none');
+            } else {
+                // Update description
+                roleDescription.innerHTML = '<strong>Employee Mode:</strong> Register your profile and view projects you\'re assigned to.';
+                
+                // Show employee elements, hide manager elements
+                document.querySelectorAll('.manager-only').forEach(el => el.style.display = 'none');
+                document.querySelectorAll('.employee-only').forEach(el => el.style.display = 'inline-block');
+            }
+        }
+    </script>
 </body>
 </html>

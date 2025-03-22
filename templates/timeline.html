@@ -24,18 +24,32 @@
               margin: 20px auto;
               max-width: 600px;
           }
+          .role-badge {
+              display: inline-block;
+              padding: 4px 8px;
+              background-color: #28a745;
+              color: white;
+              border-radius: 4px;
+              font-size: 0.8rem;
+              margin-left: 10px;
+              vertical-align: middle;
+          }
+          .role-badge.employee {
+              background-color: #17a2b8;
+          }
       </style>
       </head>
 <body>
-    <h1>📋 Project Timeline</h1>
+    <h1>📋 Project Timeline <span id="role-badge" class="role-badge">Manager</span></h1>
     <div id="loading-spinner" class="spinner"></div>
     <div class="gantt-container">
       <h2>Project Gantt Chart</h2>
       <div id="gantt-chart-container">
           <canvas id="gantt-chart"></canvas>
       </div>
-  </div>
+    </div>
     <div id="timeline-container"></div>
+    
     <!-- Employee Detail Modal -->
     <div id="employee-modal" class="modal-overlay" style="display: none;">
       <div class="modal-content">
@@ -44,19 +58,40 @@
       </div>
     </div>
 
-
-    <a href="/project">← Back to Project</a>
+    <div id="back-container" class="text-center mt-4">
+        <a href="/" class="btn btn-secondary" id="back-to-home">← Back to Dashboard</a>
+    </div>
 
     <script src="{{ url_for('static', filename='timeline.js') }}"></script>
     <script>
-      // Get the project ID from URL parameters
-      const urlParams = new URLSearchParams(window.location.search);
-      const projectId = urlParams.get('id');
-
-      // Set up the back button to return to the project with the correct ID
-      document.getElementById('back-to-project').addEventListener('click', () => {
-            window.location.href = `/project?id=${encodeURIComponent(projectId)}`;
-        });
+      document.addEventListener('DOMContentLoaded', function() {
+          // Get the user role
+          const userRole = localStorage.getItem('userRole') || 'manager';
+          
+          // Update the role badge
+          const badge = document.getElementById('role-badge');
+          if (badge) {
+              badge.textContent = userRole.charAt(0).toUpperCase() + userRole.slice(1);
+              badge.className = `role-badge ${userRole}`;
+          }
+          
+          // Set back button link based on role
+          const backBtn = document.getElementById('back-to-home');
+          if (backBtn) {
+              // Get the project ID from URL parameters
+              const urlParams = new URLSearchParams(window.location.search);
+              const projectId = urlParams.get('id');
+              
+              // For managers: back to project page, for employees: back to home
+              if (userRole === 'manager' && projectId) {
+                  backBtn.href = `/project?id=${encodeURIComponent(projectId)}`;
+                  backBtn.textContent = '← Back to Project';
+              } else {
+                  backBtn.href = '/';
+                  backBtn.textContent = '← Back to Dashboard';
+              }
+          }
+      });
   </script>
 </body>
 </html>
