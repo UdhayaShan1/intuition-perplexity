@@ -22,48 +22,6 @@
     <script src="{{ url_for('static', filename='project.js') }}"></script>
 
     <script>
-
-
-
-
-        function addMember() {
-            const container = document.createElement('div');
-            container.className = 'member-container';
-
-            const thumbnail = document.createElement('div');
-            thumbnail.className = 'thumbnail';
-            thumbnail.innerText = 'No image';
-
-            const rightSide = document.createElement('div');
-            rightSide.className = 'member-details';
-
-            const taskInput = document.createElement('input');
-            taskInput.type = 'text';
-            taskInput.placeholder = 'Overview of the Project';
-            taskInput.className = 'task-input';
-
-            const implTextarea = document.createElement('textarea');
-            implTextarea.placeholder = 'Possible overall implementations to do';
-            implTextarea.className = 'implementation-box';
-
-            const trainingTextarea = document.createElement('textarea');
-            trainingTextarea.placeholder = 'Trainings/Courses to do';
-            trainingTextarea.className = 'training-box';
-
-            const note = document.createElement('textarea');
-            note.className = 'note-box';
-            note.placeholder = 'Remarks';
-
-            rightSide.appendChild(taskInput);
-            rightSide.appendChild(implTextarea);
-            rightSide.appendChild(trainingTextarea);
-            rightSide.appendChild(note);
-
-            container.appendChild(thumbnail);
-            container.appendChild(rightSide);
-
-            document.getElementById('members').appendChild(container);
-        }
     </script>
 </body>
 </html>
