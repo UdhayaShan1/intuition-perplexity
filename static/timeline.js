@@ -15,74 +15,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(data => {
             spinner.style.display = "none"; // Hide spinner
-            const testData = {
-                project: "Test Project",
-                generalTask: "Test Task",
-                timeline: [
-                    { 
-                        member: 1,
-                        role: "Program A",
-                        start_date: "2025-01-01", 
-                        end_date: "2025-03-01", 
-                        summary: "Program A summary",
-                        task_description: "Program A task",
-                        training_time_days: 15,
-                        implementation_time_days: 30
-                    },
-                    { 
-                        member: 2,
-                        role: "Program B", 
-                        start_date: "2025-02-15", 
-                        end_date: "2025-04-01", 
-                        summary: "Program B summary",
-                        task_description: "Program B task",
-                        training_time_days: 10,
-                        implementation_time_days: 35 
-                    },
-                    { 
-                        member: 3,
-                        role: "Program C", 
-                        start_date: "2025-02-20", 
-                        end_date: "2025-05-01", 
-                        summary: "Program C summary",
-                        task_description: "Program C task",
-                        training_time_days: 5,
-                        implementation_time_days: 65
-                    },
-                    { 
-                        member: 1,
-                        role: "Program D", 
-                        start_date: "2025-05-15", 
-                        end_date: "2025-06-15", 
-                        summary: "Program D summary",
-                        task_description: "Program D task",
-                        training_time_days: 7,
-                        implementation_time_days: 24
-                    },
-                    { 
-                        member: 4,
-                        role: "Program E", 
-                        start_date: "2025-05-20", 
-                        end_date: "2025-07-01", 
-                        summary: "Program E summary",
-                        task_description: "Program E task",
-                        training_time_days: 12,
-                        implementation_time_days: 30
-                    },
-                    { 
-                        member: 3,
-                        role: "Program F", 
-                        start_date: "2025-08-01", 
-                        end_date: "2025-09-15", 
-                        summary: "Program F summary",
-                        task_description: "Program F task",
-                        training_time_days: 8,
-                        implementation_time_days: 37,
-                        phase: "Training"
-                    }
-                ]
-            };
-            renderGanttChart(testData);
+            console.log("Data received:", data);
+            renderGanttChart(data);
             renderAITimeline(data);
             checkAllTasksAssigned(); // Check initially in case we already have assignments
 

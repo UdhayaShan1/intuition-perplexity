@@ -54,6 +54,9 @@
       const projectId = urlParams.get('id');
 
       // Set up the back button to return to the project with the correct ID
+      document.getElementById('back-to-project').addEventListener('click', () => {
+            window.location.href = `/project?id=${encodeURIComponent(projectId)}`;
+        });
   </script>
 </body>
 </html>
