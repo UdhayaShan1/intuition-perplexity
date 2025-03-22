@@ -120,6 +120,86 @@ def populate_employees_with_mock_data():
             "general_interests": ["Mobile App Development", "IoT"],
             "skills": ["Java", "Swift", "Kotlin"],
             "personalities": ["Innovative", "Quick Learner", "Collaborative", "Detail-Oriented", "Adaptable"]
+        },
+        {
+            "name": "Farhan Malik",
+            "department": "Backend",
+            "years_with_company": 6,
+            "general_interests": ["Systems Design", "APIs"],
+            "skills": ["Java", "Spring Boot", "SQL"],
+            "personalities": ["Logical", "Reliable", "Detail-Oriented", "Team Player", "Resilient"]
+        },
+        {
+            "name": "Gina Yeo",
+            "department": "Data Engineering",
+            "years_with_company": 3,
+            "general_interests": ["Big Data", "ETL Pipelines"],
+            "skills": ["Python", "Spark", "Airflow"],
+            "personalities": ["Organized", "Thoughtful", "Curious", "Precise", "Systematic"]
+        },
+        {
+            "name": "Henry Tay",
+            "department": "AI Research",
+            "years_with_company": 2,
+            "general_interests": ["NLP", "LLMs"],
+            "skills": ["PyTorch", "Transformers", "OpenAI API"],
+            "personalities": ["Innovative", "Visionary", "Quick Learner", "Passionate", "Analytical"]
+        },
+        {
+            "name": "Isabelle Chan",
+            "department": "QA/Testing",
+            "years_with_company": 5,
+            "general_interests": ["Automation", "CI/CD"],
+            "skills": ["Selenium", "Jest", "Postman"],
+            "personalities": ["Detail-Oriented", "Skeptical", "Thorough", "Efficient", "Dependable"]
+        },
+        {
+            "name": "James Ong",
+            "department": "DevOps",
+            "years_with_company": 4,
+            "general_interests": ["Deployment", "Monitoring"],
+            "skills": ["Terraform", "Kubernetes", "Prometheus"],
+            "personalities": ["Systematic", "Strategic", "Calm", "Analytical", "Helpful"]
+        },
+        {
+            "name": "Kelly Lim",
+            "department": "UI/UX",
+            "years_with_company": 2,
+            "general_interests": ["Design Systems", "User Behavior"],
+            "skills": ["Figma", "Adobe XD", "CSS"],
+            "personalities": ["Creative", "Empathetic", "Detail-Oriented", "Collaborative", "Adaptable"]
+        },
+        {
+            "name": "Liam Tan",
+            "department": "Product",
+            "years_with_company": 3,
+            "general_interests": ["Agile", "User Feedback"],
+            "skills": ["JIRA", "Scrum", "Product Roadmaps"],
+            "personalities": ["Visionary", "Communicative", "Organized", "Driven", "Empowering"]
+        },
+        {
+            "name": "Mei Zhen",
+            "department": "Security",
+            "years_with_company": 5,
+            "general_interests": ["Ethical Hacking", "Pen Testing"],
+            "skills": ["Wireshark", "Nmap", "Metasploit"],
+            "personalities": ["Curious", "Detail-Oriented", "Resilient", "Protective", "Alert"]
+        },
+        {
+            "name": "Nathan Teo",
+            "department": "ML Ops",
+            "years_with_company": 2,
+            "general_interests": ["ML Deployment", "Pipeline Automation"],
+            "skills": ["MLflow", "Docker", "FastAPI"],
+            "personalities": ["Hands-on", "Adaptive", "Pragmatic", "Team Player", "Innovative"]
+        },
+        {
+            "name": "Olivia Sim",
+            "department": "Analytics",
+            "years_with_company": 4,
+            "general_interests": ["Business Intelligence", "Storytelling"],
+            "skills": ["Power BI", "SQL", "Excel"],
+            "personalities": ["Communicative", "Inquisitive", "Logical", "Detail-Oriented", "Supportive"]
         }
     ]
 

@@ -91,6 +91,7 @@ def ai_generate_timeline():
         return jsonify({"error": "OpenAI returned invalid JSON", "raw": content}), 500
 
     save_timeline_to_db(project_name, timeline_json)
+    timeline_json["consideredEmployees"] = employees
     return jsonify(timeline_json)
 
 

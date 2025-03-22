@@ -584,6 +584,110 @@ a:hover {
     color: #8a6d3b;
 }
 
+.recommend-box {
+    background-color: #e6f9ec;
+    border-left: 5px solid #34a853;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.recommend-box h4 {
+    color: #2e7d32;
+}
+
+.recommend-box ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.recommend-box li {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #f5fff8;
+    border-radius: 6px;
+    border: 1px solid #b2dfdb;
+}
+
+.recommend-box li:hover {
+    background-color: #d7f5e9;
+}
+
+.recommend-box button {
+    margin-right: 10px;
+}
+
+.recommend-box a {
+    color: #2b6777;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    right: 20px;
+    top: 12px;
+    font-size: 22px;
+    cursor: pointer;
+    color: #888;
+}
+
+/* Shared button styles */
+.button-group .btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    margin-right: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Contact button (blue) */
+.contact-btn {
+    background-color: #4285f4;
+    color: white;
+}
+
+.contact-btn:hover {
+    background-color: #2b6cd3;
+}
+
+/* Assign button (green) */
+.assign-btn {
+    background-color: #34a853;
+    color: white;
+}
+
+.assign-btn:hover {
+    background-color: #2c8a44;
+}
+
 
 
 
