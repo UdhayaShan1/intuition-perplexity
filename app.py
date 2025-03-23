@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 import webbrowser
 from threading import Timer
-from database import init_db, save_project_to_db, load_project_from_db, get_all_projects, save_timeline_to_db
+from database import init_projects, init_db, save_project_to_db, load_project_from_db, get_all_projects, save_timeline_to_db
 from employees_database import (
     populate_employees_with_mock_data, 
     db_get_assigned_employees,
@@ -533,6 +533,7 @@ def open_browser():
 
 if __name__ == '__main__':
     init_db()
+    init_projects()
     employees_database.init_db()
     populate_employees_with_mock_data()
     Timer(1, open_browser).start()
