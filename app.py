@@ -151,6 +151,102 @@ def ai_generate_timeline():
             "details": str(e)
         }), 500
 
+
+# Add this new endpoint after your other routes
+
+@app.route('/get_task_recommendations', methods=['POST'])
+def get_task_recommendations():
+    print("First Call")
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({"status": "error", "message": "No data provided"}), 400
+            
+        project_id = data.get('projectId')
+        task_id = data.get('taskId')
+        task_details = data.get('taskDetails', {})
+        
+        if not project_id or task_id is None:
+            return jsonify({"status": "error", "message": "Missing required data"}), 400
+        
+        all_employees = get_all_employees()
+        
+        # Generate recommendations using OpenAI
+        print("Second Call")
+        recommendations = generate_recommendations_for_task(project_id, task_details, all_employees)
+        
+        return jsonify({
+            "status": "success",
+            "recommendations": recommendations,
+            "employees": all_employees
+        })
+        
+    except Exception as e:
+        print(f"Error in get_task_recommendations: {str(e)}")
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# Add this function to your AI recommendations module
+
+def generate_recommendations_for_task(project_id, task_details, all_employees):
+    """Generate employee recommendations for a specific task using OpenAI."""
+    print("Third Call")
+    
+    # Prepare employee data for the prompt
+    employee_data = "\n".join([
+        f"Employee: {emp['name']}, Department: {emp['department']}, "
+        f"Skills: {', '.join(emp['skills'])}, "
+        f"Interests: {', '.join(emp['general_interests'])}, "
+        f"Personalities: {', '.join(emp['personalities'])}"
+        for emp in all_employees
+    ])
+    
+    # Create the prompt for OpenAI
+    prompt = f"""
+    Project Task:
+    Role: {task_details.get('role', 'Unknown')}
+    Summary: {task_details.get('summary', 'No summary')}
+    Description: {task_details.get('task_description', 'No description')}
+    Required Skills: {', '.join(task_details.get('skills_required', ['Not specified']))}
+    
+    Available Employees:
+    {employee_data}
+    
+    Please recommend the top 3 employees for this task. For each recommendation, provide:
+    1. The employee name
+    2. A brief explanation of why they're a good fit
+    Format as JSON: [{{"name": "Employee Name", "reason": "Reason for recommendation"}}]
+    """
+    
+    # Call OpenAI API
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "system", "content": "You are a project staffing assistant."}, 
+                 {"role": "user", "content": prompt}],
+        max_tokens=10000,
+        n=1,
+        stop=None,
+        temperature=0.7
+    )
+    print("Fourth Call")
+    
+    # Extract the recommendations from the response
+    try:
+        import json
+        recommendations_text = response.choices[0].message.content.strip()
+        print("Recommendations text:", recommendations_text)
+        # Try to extract JSON if it's embedded in text
+        if not recommendations_text.startswith('['):
+            import re
+            json_match = re.search(r'\[(.*?)\]', recommendations_text, re.DOTALL)
+            if json_match:
+                recommendations_text = json_match.group(0)
+        
+        recommendations = json.loads(recommendations_text)
+        return recommendations
+    except Exception as e:
+        print(f"Error processing AI recommendations: {str(e)}")
+        return []
+
 @app.route('/get_timeline')
 def get_timeline():
     try:

@@ -132,51 +132,41 @@ function renderAITimeline(data) {
         // Add recommendations section if available
 // Add recommendations section if available
         if (item.recommendations && item.recommendations.length > 0) {
-            // Create recruit button first (shown by default)
             const recruitButton = document.createElement('button');
             recruitButton.className = 'btn btn-primary recruit-btn';
             recruitButton.innerHTML = '🔍 Recommend Team Members';
             recruitButton.dataset.showing = 'false';
+            recruitButton.dataset.taskId = index;
             card.appendChild(recruitButton);
             
-            // Create recommendation box (hidden by default)
-            const recommendBox = document.createElement('div');
-            recommendBox.className = 'recommend-box';
-            recommendBox.style.display = 'none'; // Initially hidden
-            recommendBox.innerHTML = `<h4>🧑‍💼 Recommended Employees</h4>`;
-            
-            const recommendList = document.createElement('ul');
-            
-            item.recommendations.forEach(rec => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    <strong>${rec.name}</strong>
-                    <p>${rec.reason}</p>
-                    <button class="btn btn-sm btn-info" onclick="showEmployeeDetails('${rec.name.replace(/'/g, "\\'")}', ${index})">
-                        View Details
-                    </button>
-                `;
-                recommendList.appendChild(listItem);
-            });
-            
-            recommendBox.appendChild(recommendList);
-            card.appendChild(recommendBox);
-            
-            // Add click handler to toggle recommendations visibility
+            // Add click handler to fetch or toggle recommendations
             recruitButton.addEventListener('click', function() {
                 const isShowing = this.dataset.showing === 'true';
+                const taskId = this.dataset.taskId;
+                
                 if (isShowing) {
                     // Hide recommendations
-                    recommendBox.style.display = 'none';
-                    this.innerHTML = '🔍 Recruit Team Members';
-                    this.dataset.showing = 'false';
+                    const recommendBox = card.querySelector('.recommend-box');
+                    if (recommendBox) {
+                        recommendBox.style.display = 'none';
+                        this.innerHTML = '🔍 Recommend Team Members';
+                        this.dataset.showing = 'false';
+                    }
                 } else {
-                    // Show recommendations
-                    recommendBox.style.display = 'block';
-                    this.innerHTML = '❌ Hide Recommendations';
-                    this.dataset.showing = 'true';
+                    // Show existing recommendations or fetch new ones
+                    const recommendBox = card.querySelector('.recommend-box');
+                    if (recommendBox) {
+                        // Just show existing recommendations
+                        recommendBox.style.display = 'block';
+                        this.innerHTML = '❌ Hide Recommendations';
+                        this.dataset.showing = 'true';
+                    } else {
+                        // Fetch new recommendations
+                        fetchRecommendationsForTask(taskId, data.timeline[taskId]);
+                    }
                 }
             });
+            
         }
                 
         // Only add functionality for managers
@@ -334,7 +324,122 @@ function renderAITimeline(data) {
     }
 }
 
+
+// Add this new function after the renderAITimeline function
+
+function fetchRecommendationsForTask(taskId, taskData) {
+    // Get the task card
+    const taskCard = document.querySelector(`.timeline-card[data-task-id="${taskId}"]`);
+    const recruitBtn = taskCard.querySelector('.recruit-btn');
+    
+    // Display loading state
+    recruitBtn.innerHTML = '⏳ Loading...';
+    recruitBtn.disabled = true;
+    
+    // Remove any existing recommendation box
+    const existingRecommendBox = taskCard.querySelector('.recommend-box');
+    if (existingRecommendBox) {
+        existingRecommendBox.remove();
+    }
+    
+    // Prepare task data to send to the server
+    const requestData = {
+        projectId: projectId,
+        taskId: taskId,
+        taskDetails: {
+            member: taskData.member,
+            role: taskData.role,
+            summary: taskData.summary,
+            task_description: taskData.task_description,
+            skills_required: taskData.skills_required || []
+        }
+    };
+    
+    // Make API call to get recommendations
+    return fetch('/get_task_recommendations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Update global employees list
+        if (data.employees && Array.isArray(data.employees)) {
+            window.allEmployees = data.employees;
+        }
+        
+        // Display the recommendations
+        displayRecommendations(taskCard, data.recommendations || [], taskId);
+        
+        // Update button state
+        recruitBtn.innerHTML = '❌ Hide Recommendations';
+        recruitBtn.dataset.showing = 'true';
+        recruitBtn.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error fetching recommendations:', error);
+        
+        // Show error in the card
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'alert alert-danger';
+        errorDiv.textContent = 'Failed to load recommendations. Please try again.';
+        taskCard.appendChild(errorDiv);
+        
+        // Reset button
+        recruitBtn.innerHTML = '🔍 Recommend Team Members';
+        recruitBtn.dataset.showing = 'false';
+        recruitBtn.disabled = false;
+        
+        // Remove error message after 5 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode === taskCard) {
+                taskCard.removeChild(errorDiv);
+            }
+        }, 5000);
+    });
+}
+
+function displayRecommendations(taskCard, recommendations, taskId) {
+    // Create recommendation box
+    const recommendBox = document.createElement('div');
+    recommendBox.className = 'recommend-box';
+    recommendBox.innerHTML = `<h4>🧑‍💼 Recommended Employees</h4>`;
+    
+    if (recommendations.length === 0) {
+        recommendBox.innerHTML += '<p>No suitable recommendations found.</p>';
+        taskCard.appendChild(recommendBox);
+        return;
+    }
+    
+    const recommendList = document.createElement('ul');
+    
+    recommendations.forEach(rec => {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `
+            <strong>${rec.name}</strong>
+            <p>${rec.reason}</p>
+            <button class="btn btn-sm btn-info" onclick="showEmployeeDetails('${rec.name.replace(/'/g, "\\'")}', ${taskId})">
+                View Details
+            </button>
+        `;
+        recommendList.appendChild(listItem);
+    });
+    
+    recommendBox.appendChild(recommendList);
+    taskCard.appendChild(recommendBox);
+}
+
+
 // Modify the timeline.html template to add an info message for employees
+
+
 
 // Also update any other relevant functions to check user role before performing manager-only actions
 
