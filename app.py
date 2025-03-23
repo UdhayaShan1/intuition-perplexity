@@ -12,15 +12,18 @@ import employees_database
 import os
 import json
 import openai
+from openai import OpenAI
 
 app = Flask(__name__)
 
 DB_DIR = os.path.join(os.path.dirname(__file__), 'db')
 os.makedirs(DB_DIR, exist_ok=True)
-openai.api_key = ""
+api_key = ""
+client = None
 
 with open("api_key/api.txt", "r") as key_file:
-    openai.api_key = key_file.read().strip()
+    api_key = key_file.read().strip()
+    client = OpenAI(api_key=api_key)  # Initialize the client with the API key
 
 # Remove this redundant import since we already imported get_all_employees above
 # from employees_database import get_all_employees
@@ -58,7 +61,11 @@ def ai_generate_timeline():
         Here is the employee pool:
         {json.dumps(employees, indent=2)}
 
-        ✅ Return only valid JSON in this format:
+        IMPORTANT: Return ONLY the raw JSON object without any markdown formatting, code blocks, or backticks.
+        DO NOT include ```json at the beginning or ``` at the end.
+        Return ONLY the JSON object itself starting with {{ and ending with }}
+        The response must be directly parseable by json.loads() without any preprocessing.
+
         {{
           "project": "{project_name}",
           "generalTask": "...",
@@ -84,23 +91,28 @@ def ai_generate_timeline():
           "caution": "..."
         }}
         """
-
+        print("Here1")
         # Check if API key is set
-        if not openai.api_key or openai.api_key.strip() == "":
+        if not api_key or api_key.strip() == "":
             print("ERROR: OpenAI API key is not set or is empty")
             return jsonify({"error": "OpenAI API key is not configured"}), 500
 
         try:
             # Add timeout to prevent hanging requests
             print("Making OpenAI API call...")
-            response = openai.ChatCompletion.create(
-                model="gpt-4",
+            response = client.chat.completions.create(
+                model="gpt-4o",
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.3,
-                timeout=60  # 60 second timeout
+                max_tokens=10000,
+                n=1,
+                stop=None,
+                temperature=0.7,
+                # temperature=0.3,
+                # timeout=60  # 60 second timeout
             )
-            
-            content = response['choices'][0]['message']['content']
+            content = response.choices[0].message.content
+            print("Content", content)
+            #content = response['choices'][0]['message']['content']
             print("OpenAI API call successful")
             
         except Exception as api_error:
@@ -346,21 +358,24 @@ def generate_email():
     if not prompt:
         return jsonify({"error": "Missing prompt"}), 400
 
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=250,
-        n=1,
-        stop=None,
-        temperature=0.7,
-    )
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",  # Updated to use gpt-4o
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant. Respond directly without any markdown formatting."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=250,
+            n=1,
+            temperature=0.7,
+        )
 
-    email_content = response.choices[0].message['content'].strip()
-    return jsonify({"email": email_content})
-
+        email_content = response.choices[0].message.content.strip()
+        return jsonify({"email": email_content})
+    except Exception as e:
+        print(f"Email generation error: {str(e)}")
+        return jsonify({"error": f"Failed to generate email: {str(e)}"}), 500
+    
 @app.route('/get_projects')
 def get_projects():
     try:

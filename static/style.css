@@ -828,4 +828,14 @@ a:hover {
 }
 
 
+.recruit-btn {
+    margin: 10px 0;
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: all 0.2s;
+}
 
+.recruit-btn:hover {
+    background-color: #0069d9;
+    border-color: #0062cc;
+}

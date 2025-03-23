@@ -130,9 +130,19 @@ function renderAITimeline(data) {
         card.innerHTML = infoHTML;
         
         // Add recommendations section if available
+// Add recommendations section if available
         if (item.recommendations && item.recommendations.length > 0) {
+            // Create recruit button first (shown by default)
+            const recruitButton = document.createElement('button');
+            recruitButton.className = 'btn btn-primary recruit-btn';
+            recruitButton.innerHTML = '🔍 Recommend Team Members';
+            recruitButton.dataset.showing = 'false';
+            card.appendChild(recruitButton);
+            
+            // Create recommendation box (hidden by default)
             const recommendBox = document.createElement('div');
             recommendBox.className = 'recommend-box';
+            recommendBox.style.display = 'none'; // Initially hidden
             recommendBox.innerHTML = `<h4>🧑‍💼 Recommended Employees</h4>`;
             
             const recommendList = document.createElement('ul');
@@ -151,8 +161,24 @@ function renderAITimeline(data) {
             
             recommendBox.appendChild(recommendList);
             card.appendChild(recommendBox);
+            
+            // Add click handler to toggle recommendations visibility
+            recruitButton.addEventListener('click', function() {
+                const isShowing = this.dataset.showing === 'true';
+                if (isShowing) {
+                    // Hide recommendations
+                    recommendBox.style.display = 'none';
+                    this.innerHTML = '🔍 Recruit Team Members';
+                    this.dataset.showing = 'false';
+                } else {
+                    // Show recommendations
+                    recommendBox.style.display = 'block';
+                    this.innerHTML = '❌ Hide Recommendations';
+                    this.dataset.showing = 'true';
+                }
+            });
         }
-        
+                
         // Only add functionality for managers
 // Inside the renderAITimeline function, replace the comment where it says "Only add functionality for managers"
 
